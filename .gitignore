@@ -1,0 +1,19 @@
+# Xcode
+.build/
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserdatad/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Logs
+*.log

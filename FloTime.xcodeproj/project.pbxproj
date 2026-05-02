@@ -1,0 +1,376 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* AppDelegate.swift */; };
+		A10000000000000000000002 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppRootView.swift */; };
+		A10000000000000000000003 /* FloTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* FloTimeApp.swift */; };
+		A10000000000000000000004 /* FloTimeNotificationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* FloTimeNotificationRoute.swift */; };
+		A10000000000000000000005 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* Theme.swift */; };
+		A10000000000000000000006 /* ActivityLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* ActivityLog.swift */; };
+		A10000000000000000000007 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* AppSettings.swift */; };
+		A10000000000000000000008 /* CalendarEventSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* CalendarEventSnapshot.swift */; };
+		A10000000000000000000009 /* DraftLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* DraftLogEntry.swift */; };
+		A1000000000000000000000A /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* CalendarService.swift */; };
+		A1000000000000000000000B /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* NotificationScheduler.swift */; };
+		A1000000000000000000000C /* ActivityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* ActivityStore.swift */; };
+		A1000000000000000000000D /* CalendarOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* CalendarOverviewView.swift */; };
+		A1000000000000000000000E /* LogEntrySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* LogEntrySheet.swift */; };
+		A1000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* SettingsView.swift */; };
+		A10000000000000000000010 /* TodayDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* TodayDashboardView.swift */; };
+		A10000000000000000000011 /* DailyProductivityChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* DailyProductivityChartView.swift */; };
+		A10000000000000000000012 /* MonthCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* MonthCalendarView.swift */; };
+		A10000000000000000000013 /* RatingBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* RatingBadge.swift */; };
+		A10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* FloTimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloTimeApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* FloTimeNotificationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloTimeNotificationRoute.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* ActivityLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLog.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* CalendarEventSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventSnapshot.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* DraftLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftLogEntry.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		B1000000000000000000000C /* ActivityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStore.swift; sourceTree = "<group>"; };
+		B1000000000000000000000D /* CalendarOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarOverviewView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000E /* LogEntrySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogEntrySheet.swift; sourceTree = "<group>"; };
+		B1000000000000000000000F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* TodayDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayDashboardView.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* DailyProductivityChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProductivityChartView.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* MonthCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthCalendarView.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* RatingBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingBadge.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B10000000000000000000016 /* FloTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FloTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000002 /* FloTime */,
+				D10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D10000000000000000000002 /* FloTime */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000004 /* App */,
+				D10000000000000000000005 /* Models */,
+				D10000000000000000000006 /* Services */,
+				D10000000000000000000007 /* Stores */,
+				D10000000000000000000008 /* Views */,
+				D10000000000000000000009 /* Resources */,
+			);
+			name = FloTime;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000016 /* FloTime.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* AppDelegate.swift */,
+				B10000000000000000000002 /* AppRootView.swift */,
+				B10000000000000000000003 /* FloTimeApp.swift */,
+				B10000000000000000000004 /* FloTimeNotificationRoute.swift */,
+				B10000000000000000000005 /* Theme.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000006 /* ActivityLog.swift */,
+				B10000000000000000000007 /* AppSettings.swift */,
+				B10000000000000000000008 /* CalendarEventSnapshot.swift */,
+				B10000000000000000000009 /* DraftLogEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000006 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000A /* CalendarService.swift */,
+				B1000000000000000000000B /* NotificationScheduler.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000007 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000C /* ActivityStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D1000000000000000000000A /* Components */,
+				B1000000000000000000000D /* CalendarOverviewView.swift */,
+				B1000000000000000000000E /* LogEntrySheet.swift */,
+				B1000000000000000000000F /* SettingsView.swift */,
+				B10000000000000000000010 /* TodayDashboardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000009 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000014 /* Assets.xcassets */,
+				B10000000000000000000015 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D1000000000000000000000A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000011 /* DailyProductivityChartView.swift */,
+				B10000000000000000000012 /* MonthCalendarView.swift */,
+				B10000000000000000000013 /* RatingBadge.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* FloTime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000002 /* Build configuration list for PBXNativeTarget "FloTime" */;
+			buildPhases = (
+				C10000000000000000000002 /* Sources */,
+				C10000000000000000000001 /* Frameworks */,
+				C10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FloTime;
+			productName = FloTime;
+			productReference = B10000000000000000000016 /* FloTime.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E10000000000000000000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					E10000000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = F10000000000000000000001 /* Build configuration list for PBXProject "FloTime" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D10000000000000000000001;
+			productRefGroup = D10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E10000000000000000000001 /* FloTime */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000014 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* AppDelegate.swift in Sources */,
+				A10000000000000000000002 /* AppRootView.swift in Sources */,
+				A10000000000000000000003 /* FloTimeApp.swift in Sources */,
+				A10000000000000000000004 /* FloTimeNotificationRoute.swift in Sources */,
+				A10000000000000000000005 /* Theme.swift in Sources */,
+				A10000000000000000000006 /* ActivityLog.swift in Sources */,
+				A10000000000000000000007 /* AppSettings.swift in Sources */,
+				A10000000000000000000008 /* CalendarEventSnapshot.swift in Sources */,
+				A10000000000000000000009 /* DraftLogEntry.swift in Sources */,
+				A1000000000000000000000A /* CalendarService.swift in Sources */,
+				A1000000000000000000000B /* NotificationScheduler.swift in Sources */,
+				A1000000000000000000000C /* ActivityStore.swift in Sources */,
+				A1000000000000000000000D /* CalendarOverviewView.swift in Sources */,
+				A1000000000000000000000E /* LogEntrySheet.swift in Sources */,
+				A1000000000000000000000F /* SettingsView.swift in Sources */,
+				A10000000000000000000010 /* TodayDashboardView.swift in Sources */,
+				A10000000000000000000011 /* DailyProductivityChartView.swift in Sources */,
+				A10000000000000000000012 /* MonthCalendarView.swift in Sources */,
+				A10000000000000000000013 /* RatingBadge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+			};
+			name = Debug;
+		};
+		F10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F10000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rayhanrinzan.flotime;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F10000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rayhanrinzan.flotime;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F10000000000000000000001 /* Build configuration list for PBXProject "FloTime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000003 /* Debug */,
+				F10000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000002 /* Build configuration list for PBXNativeTarget "FloTime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000005 /* Debug */,
+				F10000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E10000000000000000000002 /* Project object */;
+}
