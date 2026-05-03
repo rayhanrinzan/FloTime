@@ -37,11 +37,7 @@ struct DailyProductivityChartView: View {
             AxisMarks(values: .stride(by: 4)) {
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                     .foregroundStyle(FloTimeTheme.accent)
-                AxisValueLabel {
-                    if let hour = $0.as(Int.self) {
-                        Text("\(hour)")
-                    }
-                }
+                AxisValueLabel()
             }
         }
         .chartYAxis {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TodayDashboardView: View {
-    let store: ActivityStore
+    @ObservedObject var store: ActivityStore
     let onAddLog: () -> Void
 
     var body: some View {

@@ -1,15 +1,14 @@
 import Foundation
-import Observation
+import Combine
 
 @MainActor
-@Observable
-final class ActivityStore {
-    var logs: [ActivityLog]
-    var settings: AppSettings
-    var selectedDate: Date
-    var upcomingEvents: [CalendarEventSnapshot]
-    var calendarPermissionState: CalendarPermissionState
-    var draftLogEntry: DraftLogEntry?
+final class ActivityStore: ObservableObject {
+    @Published var logs: [ActivityLog]
+    @Published var settings: AppSettings
+    @Published var selectedDate: Date
+    @Published var upcomingEvents: [CalendarEventSnapshot]
+    @Published var calendarPermissionState: CalendarPermissionState
+    @Published var draftLogEntry: DraftLogEntry?
 
     private let storage = UserDefaults.standard
     private let logsKey = "flotime.logs"

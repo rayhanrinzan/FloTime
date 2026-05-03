@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    let store: ActivityStore
+    @ObservedObject var store: ActivityStore
 
     var body: some View {
         NavigationStack {

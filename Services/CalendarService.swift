@@ -20,7 +20,7 @@ final class CalendarService {
             if #available(iOS 17.0, *) {
                 return try await store.requestFullAccessToEvents()
             } else {
-                return try await withCheckedThrowingContinuation { continuation in
+                return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
                     store.requestAccess(to: .event) { granted, error in
                         if let error {
                             continuation.resume(throwing: error)

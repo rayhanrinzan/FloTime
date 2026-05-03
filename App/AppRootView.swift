@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AppRootView: View {
-    let store: ActivityStore
+    @ObservedObject var store: ActivityStore
     @State private var selectedTab: AppTab = .today
 
     var body: some View {

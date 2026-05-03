@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CalendarOverviewView: View {
-    let store: ActivityStore
+    @ObservedObject var store: ActivityStore
 
     var body: some View {
         NavigationStack {

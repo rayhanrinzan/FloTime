@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LogEntrySheet: View {
-    let store: ActivityStore
+    @ObservedObject var store: ActivityStore
     let draft: DraftLogEntry
 
     @Environment(\.dismiss) private var dismiss
