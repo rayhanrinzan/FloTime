@@ -4,6 +4,7 @@ struct MonthCalendarView: View {
     @Binding var selectedDate: Date
 
     let logs: [ActivityLog]
+    let isRestDay: (Date) -> Bool
 
     @State private var displayedMonth = Calendar.current.startOfDay(for: .now)
 
@@ -25,7 +26,7 @@ struct MonthCalendarView: View {
                         dayCell(for: date)
                     } else {
                         Color.clear
-                            .frame(height: 42)
+                            .frame(height: 56)
                     }
                 }
             }
@@ -94,19 +95,44 @@ struct MonthCalendarView: View {
     private func dayCell(for date: Date) -> some View {
         let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
         let average = averageRating(for: date)
+        let isRestDay = isRestDay(date)
 
         Button {
             selectedDate = date
         } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isSelected ? FloTimeTheme.primary : FloTimeTheme.primary.opacity(max(0.08, average / 15)))
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .top) {
+                    Text("\(Calendar.current.component(.day, from: date))")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(isSelected ? .white : FloTimeTheme.text)
 
-                Text("\(Calendar.current.component(.day, from: date))")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(isSelected ? .white : FloTimeTheme.text)
+                    Spacer(minLength: 4)
+
+                    if isRestDay {
+                        Image(systemName: "bed.double.fill")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(isSelected ? .white : FloTimeTheme.primary)
+                    }
+                }
+
+                Spacer(minLength: 0)
+
+                if isRestDay {
+                    Text("REST")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(isSelected ? .white : FloTimeTheme.primary)
+                }
             }
-            .frame(height: 42)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 7)
+            .frame(height: 56)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(backgroundColor(isSelected: isSelected, average: average, isRestDay: isRestDay))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(isRestDay && !isSelected ? FloTimeTheme.primary.opacity(0.6) : .clear, lineWidth: 1.5)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -119,5 +145,17 @@ struct MonthCalendarView: View {
 
     private func shiftMonth(by value: Int) {
         displayedMonth = Calendar.current.date(byAdding: .month, value: value, to: displayedMonth) ?? displayedMonth
+    }
+
+    private func backgroundColor(isSelected: Bool, average: Double, isRestDay: Bool) -> Color {
+        if isSelected {
+            return FloTimeTheme.primary
+        }
+
+        if isRestDay {
+            return FloTimeTheme.accent.opacity(0.48)
+        }
+
+        return FloTimeTheme.primary.opacity(max(0.08, average / 15))
     }
 }

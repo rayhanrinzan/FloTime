@@ -2,6 +2,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var store: ActivityStore
+    @State private var isShowingGoogleAlert = false
+    @State private var googleAlertMessage = ""
 
     var body: some View {
         NavigationStack {
@@ -21,6 +23,11 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Google Sign-In", isPresented: $isShowingGoogleAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(googleAlertMessage)
+            }
         }
     }
 
@@ -89,10 +96,33 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(FloTimeTheme.mutedText)
 
+                if let googleSetupIssue {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Google setup still needs one step", systemImage: "exclamationmark.triangle.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.orange)
+
+                        Text(googleSetupIssue)
+                            .font(.caption)
+                            .foregroundStyle(FloTimeTheme.text)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color.white.opacity(0.92))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.orange.opacity(0.35), lineWidth: 1)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+
                 HStack(spacing: 10) {
                     Button {
                         Task {
                             await store.connectGoogleCalendar()
+                            if case .failed(let message) = store.googleConnectionState {
+                                presentGoogleAlert(message)
+                            }
                         }
                     } label: {
                         Label(connectButtonLabel, systemImage: "globe")
@@ -302,6 +332,11 @@ struct SettingsView: View {
         }
     }
 
+    private var googleSetupIssue: String? {
+        guard !store.googleConnectionState.isConnected else { return nil }
+        return store.googleConfigurationIssueMessage()
+    }
+
     private var connectButtonLabel: String {
         switch store.googleConnectionState {
         case .connected:
@@ -322,6 +357,11 @@ struct SettingsView: View {
 
     private var hasAvailableCalendarSources: Bool {
         store.calendarPermissionState == .authorized || store.googleConnectionState.isConnected || !store.availableCalendars.isEmpty
+    }
+
+    private func presentGoogleAlert(_ message: String) {
+        googleAlertMessage = message
+        isShowingGoogleAlert = true
     }
 }
 

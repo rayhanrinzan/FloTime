@@ -12,7 +12,11 @@ struct CalendarOverviewView: View {
 
                 ScrollView {
                     VStack(spacing: 18) {
-                        MonthCalendarView(selectedDate: bindableDate, logs: store.logs)
+                        MonthCalendarView(
+                            selectedDate: bindableDate,
+                            logs: store.logs,
+                            isRestDay: { store.isRestDay($0) }
+                        )
                             .floTimeCard()
 
                         selectedDayCard
@@ -52,8 +56,25 @@ struct CalendarOverviewView: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(FloTimeTheme.text)
 
+            if store.isRestDay(store.selectedDate) {
+                Label("Rest day", systemImage: "bed.double.fill")
+                    .font(.headline)
+                    .foregroundStyle(FloTimeTheme.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(FloTimeTheme.accent.opacity(0.42))
+                    .clipShape(Capsule())
+
+                Text("FloTime treats this date as a rest day, so productivity reminders stay paused.")
+                    .foregroundStyle(FloTimeTheme.mutedText)
+            }
+
             if dayLogs.isEmpty {
-                Text("No productivity entries for this day yet.")
+                Text(
+                    store.isRestDay(store.selectedDate)
+                        ? "No entries were logged for this rest day."
+                        : "No productivity entries for this day yet."
+                )
                     .foregroundStyle(FloTimeTheme.mutedText)
                     .padding(.vertical, 18)
             } else {

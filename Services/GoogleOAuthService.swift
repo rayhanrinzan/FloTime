@@ -53,6 +53,18 @@ final class GoogleOAuthService {
         GIDSignIn.sharedInstance.currentUser != nil || GIDSignIn.sharedInstance.hasPreviousSignIn()
     }
 
+    func configurationIssue() -> GoogleOAuthError? {
+        if configuredClientID() == nil {
+            return .missingClientID
+        }
+
+        if !hasConfiguredCallbackScheme() {
+            return .missingCallbackScheme
+        }
+
+        return nil
+    }
+
     func configuredClientID() -> String? {
         guard let rawValue = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
             return nil
@@ -81,8 +93,8 @@ final class GoogleOAuthService {
             throw GoogleOAuthError.presentationContextUnavailable
         }
 
-        guard hasConfiguredCallbackScheme() else {
-            throw GoogleOAuthError.missingCallbackScheme
+        if let configurationIssue = configurationIssue() {
+            throw configurationIssue
         }
 
         if let currentUser = GIDSignIn.sharedInstance.currentUser {

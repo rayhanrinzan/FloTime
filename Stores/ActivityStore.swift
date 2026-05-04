@@ -215,6 +215,10 @@ final class ActivityStore: ObservableObject {
         }
     }
 
+    func googleConfigurationIssueMessage() -> String? {
+        googleOAuthService.configurationIssue()?.localizedDescription
+    }
+
     func disconnectGoogleCalendar() async {
         do {
             try await googleCalendarService.disconnect()
