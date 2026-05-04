@@ -12,14 +12,14 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>GIDClientID</key>
+	<string>REPLACE_WITH_GOOGLE_IOS_CLIENT_ID</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleURLName</key>
-			<string>GoogleOAuth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.rayhanrinzan.flotime.oauth</string>
+				<string>REPLACE_WITH_REVERSED_GOOGLE_CLIENT_ID</string>
 			</array>
 		</dict>
 	</array>
@@ -31,8 +31,6 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>GoogleOAuthClientID</key>
-	<string>REPLACE_WITH_GOOGLE_CLIENT_ID</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCalendarsFullAccessUsageDescription</key>

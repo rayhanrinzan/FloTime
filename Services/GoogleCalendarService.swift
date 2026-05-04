@@ -12,12 +12,12 @@ struct GoogleCalendarService {
         oauthService.hasStoredSession()
     }
 
-    func disconnect() {
-        oauthService.disconnect()
+    func disconnect() async throws {
+        try await oauthService.disconnect()
     }
 
-    func fetchCalendars(clientID: String) async throws -> [DeviceCalendarSnapshot] {
-        let token = try await oauthService.validAccessToken(clientID: clientID)
+    func fetchCalendars() async throws -> [DeviceCalendarSnapshot] {
+        let token = try await oauthService.validAccessToken()
         let response: GoogleCalendarListResponse = try await request(
             url: URL(string: "https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader")!,
             accessToken: token
@@ -36,14 +36,13 @@ struct GoogleCalendarService {
     }
 
     func fetchEvents(
-        clientID: String,
         calendarIdentifiers: Set<String>,
         from startDate: Date,
         to endDate: Date
     ) async throws -> [CalendarEventSnapshot] {
         guard !calendarIdentifiers.isEmpty else { return [] }
 
-        let token = try await oauthService.validAccessToken(clientID: clientID)
+        let token = try await oauthService.validAccessToken()
         var allEvents: [CalendarEventSnapshot] = []
 
         for identifier in calendarIdentifiers {

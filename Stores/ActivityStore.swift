@@ -34,6 +34,7 @@ final class ActivityStore: ObservableObject {
     }
 
     func bootstrap() async {
+        await googleOAuthService.restorePreviousSignInIfPossible()
         await refreshNotificationAuthorization()
         refreshGoogleConnectionState()
         if settings.calendarSyncEnabled {
@@ -200,21 +201,11 @@ final class ActivityStore: ObservableObject {
         await rescheduleNotifications()
     }
 
-    func updateGoogleOAuthClientID(_ clientID: String) {
-        settings.googleOAuthClientID = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
-        save()
-    }
-
     func connectGoogleCalendar() async {
-        guard let clientID = resolvedGoogleClientID() else {
-            googleConnectionState = .failed("Google sign-in is not configured in this build yet.")
-            return
-        }
-
         googleConnectionState = .connecting
 
         do {
-            _ = try await googleOAuthService.authorize(clientID: clientID)
+            try await googleOAuthService.authorizeCalendarAccess()
             googleConnectionState = .connected
             if settings.calendarSyncEnabled {
                 await refreshCalendarEvents()
@@ -225,14 +216,18 @@ final class ActivityStore: ObservableObject {
     }
 
     func disconnectGoogleCalendar() async {
-        googleCalendarService.disconnect()
-        googleConnectionState = .disconnected
-        settings.selectedCalendarIdentifiers.removeAll(where: { $0.hasPrefix("google:") })
-        settings.selectedEventPreferences.removeAll(where: { $0.eventIdentifier.hasPrefix("google-event:") })
-        availableCalendars.removeAll(where: { $0.id.hasPrefix("google:") })
-        upcomingEvents.removeAll(where: { $0.id.hasPrefix("google-event:") })
-        save()
-        await rescheduleNotifications()
+        do {
+            try await googleCalendarService.disconnect()
+            googleConnectionState = .disconnected
+            settings.selectedCalendarIdentifiers.removeAll(where: { $0.hasPrefix("google:") })
+            settings.selectedEventPreferences.removeAll(where: { $0.eventIdentifier.hasPrefix("google-event:") })
+            availableCalendars.removeAll(where: { $0.id.hasPrefix("google:") })
+            upcomingEvents.removeAll(where: { $0.id.hasPrefix("google-event:") })
+            save()
+            await rescheduleNotifications()
+        } catch {
+            googleConnectionState = .failed(error.localizedDescription)
+        }
     }
 
     func setCalendarSelection(_ calendarID: String, isSelected: Bool) async {
@@ -310,9 +305,9 @@ final class ActivityStore: ObservableObject {
             calendarPermissionState = .denied
         }
 
-        if googleOAuthService.hasStoredSession(), let clientID = resolvedGoogleClientID() {
+        if googleOAuthService.hasStoredSession() {
             do {
-                let googleCalendars = try await googleCalendarService.fetchCalendars(clientID: clientID)
+                let googleCalendars = try await googleCalendarService.fetchCalendars()
                 mergedCalendars.append(contentsOf: googleCalendars)
                 googleConnectionState = .connected
             } catch {
@@ -347,15 +342,7 @@ final class ActivityStore: ObservableObject {
 
         if !googleSelectedIDs.isEmpty && googleConnectionState.isConnected {
             do {
-                guard let clientID = resolvedGoogleClientID() else {
-                    googleConnectionState = .failed("Google sign-in is not configured in this build yet.")
-                    upcomingEvents = mergedEvents.sorted { $0.startDate < $1.startDate }
-                    await rescheduleNotifications()
-                    return
-                }
-
                 let googleEvents = try await googleCalendarService.fetchEvents(
-                    clientID: clientID,
                     calendarIdentifiers: googleSelectedIDs,
                     from: start,
                     to: end
@@ -492,13 +479,6 @@ final class ActivityStore: ObservableObject {
 
     private func dayIdentifier(for date: Date) -> String {
         ActivityStore.dayFormatter.string(from: date)
-    }
-
-    private func resolvedGoogleClientID() -> String? {
-        googleOAuthService.configuredClientID() ?? {
-            let trimmed = settings.googleOAuthClientID.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? nil : trimmed
-        }()
     }
 }
 

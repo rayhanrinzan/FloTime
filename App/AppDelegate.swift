@@ -1,3 +1,4 @@
+import GoogleSignIn
 import UIKit
 import UserNotifications
 
@@ -25,5 +26,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     ) async {
         guard response.actionIdentifier != FloTimeNotificationRoute.skipActionID else { return }
         FloTimeNotificationRoute.post(from: response.notification.request.content.userInfo)
+    }
+
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        GIDSignIn.sharedInstance.handle(url)
     }
 }

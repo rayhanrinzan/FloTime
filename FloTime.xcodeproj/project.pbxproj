@@ -29,6 +29,7 @@
 			A10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Assets.xcassets */; };
 			A10000000000000000000015 /* GoogleOAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* GoogleOAuthService.swift */; };
 			A10000000000000000000016 /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* GoogleCalendarService.swift */; };
+			A10000000000000000000017 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = G10000000000000000000002 /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A10000000000000000000017 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +189,9 @@
 			dependencies = (
 			);
 			name = FloTime;
+			packageProductDependencies = (
+				G10000000000000000000002 /* GoogleSignIn */,
+			);
 			productName = FloTime;
 			productReference = B10000000000000000000016 /* FloTime.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +220,9 @@
 				Base,
 			);
 			mainGroup = D10000000000000000000001;
+			packageReferences = (
+				G10000000000000000000001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			productRefGroup = D10000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -265,6 +273,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		G10000000000000000000001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		G10000000000000000000002 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = G10000000000000000000001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F10000000000000000000003 /* Debug */ = {

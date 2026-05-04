@@ -10,7 +10,6 @@ struct AppSettings: Codable, Hashable {
     var selectedEventPreferences: [CalendarEventPreference]
     var selectedCalendarIdentifiers: [String]
     var restDayIdentifiers: [String]
-    var googleOAuthClientID: String
 
     static let `default` = AppSettings(
         promptIntervalMinutes: 30,
@@ -24,8 +23,7 @@ struct AppSettings: Codable, Hashable {
         promptAfterSelectedEvents: true,
         selectedEventPreferences: [],
         selectedCalendarIdentifiers: [],
-        restDayIdentifiers: [],
-        googleOAuthClientID: ""
+        restDayIdentifiers: []
     )
 
     enum CodingKeys: String, CodingKey {
@@ -38,7 +36,6 @@ struct AppSettings: Codable, Hashable {
         case selectedEventPreferences
         case selectedCalendarIdentifiers
         case restDayIdentifiers
-        case googleOAuthClientID
     }
 
     init(
@@ -50,8 +47,7 @@ struct AppSettings: Codable, Hashable {
         promptAfterSelectedEvents: Bool,
         selectedEventPreferences: [CalendarEventPreference],
         selectedCalendarIdentifiers: [String],
-        restDayIdentifiers: [String],
-        googleOAuthClientID: String
+        restDayIdentifiers: [String]
     ) {
         self.promptIntervalMinutes = promptIntervalMinutes
         self.notificationsEnabled = notificationsEnabled
@@ -62,7 +58,6 @@ struct AppSettings: Codable, Hashable {
         self.selectedEventPreferences = selectedEventPreferences
         self.selectedCalendarIdentifiers = selectedCalendarIdentifiers
         self.restDayIdentifiers = restDayIdentifiers
-        self.googleOAuthClientID = googleOAuthClientID
     }
 
     init(from decoder: Decoder) throws {
@@ -76,7 +71,6 @@ struct AppSettings: Codable, Hashable {
         selectedEventPreferences = try container.decode([CalendarEventPreference].self, forKey: .selectedEventPreferences)
         selectedCalendarIdentifiers = try container.decodeIfPresent([String].self, forKey: .selectedCalendarIdentifiers) ?? []
         restDayIdentifiers = try container.decodeIfPresent([String].self, forKey: .restDayIdentifiers) ?? []
-        googleOAuthClientID = try container.decodeIfPresent(String.self, forKey: .googleOAuthClientID) ?? ""
     }
 }
 
