@@ -68,11 +68,22 @@ struct LogEntrySheet: View {
                             rating: rating,
                             timestamp: timestamp,
                             source: draft.source,
-                            calendarEventID: draft.calendarEventID
+                            calendarEventID: draft.calendarEventID,
+                            existingLogID: draft.existingLogID
                         )
                         dismiss()
                     }
                     .disabled(note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+
+                if let existingLogID = draft.existingLogID {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Delete Activity", role: .destructive) {
+                            store.deleteLog(id: existingLogID)
+                            store.dismissDraft()
+                            dismiss()
+                        }
+                    }
                 }
             }
         }

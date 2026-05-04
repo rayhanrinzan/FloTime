@@ -24,6 +24,8 @@
 	<true/>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>FloTime reads your calendar so it can mute reminders during selected events and help you log them afterwards.</string>
+	<key>UILaunchScreen</key>
+	<dict/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>

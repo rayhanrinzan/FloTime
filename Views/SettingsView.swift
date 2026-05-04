@@ -5,16 +5,22 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    reminderCard
-                    quietHoursCard
-                    calendarCard
+            ZStack {
+                FloTimeTheme.background
+                    .ignoresSafeArea()
+
+                ScrollView {
+                    VStack(spacing: 18) {
+                        reminderCard
+                        quietHoursCard
+                        calendarCard
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .padding(20)
             }
-            .background(FloTimeTheme.background.ignoresSafeArea())
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 

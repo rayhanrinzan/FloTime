@@ -36,7 +36,8 @@ final class ActivityStore: ObservableObject {
 
     func addLog(note: String, rating: Int, timestamp: Date = .now, source: ActivitySource = .manual, calendarEventID: String? = nil) {
         let entry = ActivityLog(timestamp: timestamp, note: note, rating: rating, source: source, calendarEventID: calendarEventID)
-        logs.insert(entry, at: 0)
+        logs.append(entry)
+        normalizeLogs()
         save()
     }
 
@@ -74,21 +75,55 @@ final class ActivityStore: ObservableObject {
         )
     }
 
+    func startEditing(_ log: ActivityLog) {
+        draftLogEntry = DraftLogEntry(
+            title: "Edit Activity",
+            prompt: "Update the note, rating, or timestamp for this activity.",
+            note: log.note,
+            rating: log.rating,
+            timestamp: log.timestamp,
+            source: log.source,
+            calendarEventID: log.calendarEventID,
+            existingLogID: log.id
+        )
+    }
+
     func saveDraft(
         note: String,
         rating: Int,
         timestamp: Date,
         source: ActivitySource,
-        calendarEventID: String?
+        calendarEventID: String?,
+        existingLogID: UUID?
     ) {
-        addLog(
-            note: note,
-            rating: rating,
-            timestamp: timestamp,
-            source: source,
-            calendarEventID: calendarEventID
-        )
+        if let existingLogID {
+            updateLog(
+                id: existingLogID,
+                note: note,
+                rating: rating,
+                timestamp: timestamp,
+                source: source,
+                calendarEventID: calendarEventID
+            )
+        } else {
+            addLog(
+                note: note,
+                rating: rating,
+                timestamp: timestamp,
+                source: source,
+                calendarEventID: calendarEventID
+            )
+        }
         draftLogEntry = nil
+    }
+
+    func deleteLog(_ log: ActivityLog) {
+        deleteLog(id: log.id)
+    }
+
+    func deleteLog(id: UUID) {
+        logs.removeAll { $0.id == id }
+        save()
     }
 
     func dismissDraft() {
@@ -99,7 +134,7 @@ final class ActivityStore: ObservableObject {
         let calendar = Calendar.current
         return logs
             .filter { calendar.isDate($0.timestamp, inSameDayAs: date) }
-            .sorted { $0.timestamp < $1.timestamp }
+            .sorted { $0.timestamp > $1.timestamp }
     }
 
     func averageRating(on date: Date) -> Double {
@@ -230,15 +265,17 @@ final class ActivityStore: ObservableObject {
     private func load() {
         if let data = storage.data(forKey: logsKey),
            let decoded = try? JSONDecoder().decode([ActivityLog].self, from: data) {
-            logs = decoded
+            logs = shouldDiscardLegacySampleLogs(decoded) ? [] : decoded
         } else {
-            logs = ActivityStore.sampleLogs
+            logs = []
         }
 
         if let data = storage.data(forKey: settingsKey),
            let decoded = try? JSONDecoder().decode(AppSettings.self, from: data) {
             settings = decoded
         }
+
+        normalizeLogs()
     }
 
     private func save() {
@@ -263,13 +300,41 @@ final class ActivityStore: ObservableObject {
 
         return String(format: "%.1f hours", hours)
     }
+
+    private func updateLog(
+        id: UUID,
+        note: String,
+        rating: Int,
+        timestamp: Date,
+        source: ActivitySource,
+        calendarEventID: String?
+    ) {
+        guard let index = logs.firstIndex(where: { $0.id == id }) else { return }
+        logs[index].note = note
+        logs[index].rating = rating
+        logs[index].timestamp = timestamp
+        logs[index].source = source
+        logs[index].calendarEventID = calendarEventID
+        normalizeLogs()
+        save()
+    }
+
+    private func normalizeLogs() {
+        logs.sort { $0.timestamp > $1.timestamp }
+    }
+
+    private func shouldDiscardLegacySampleLogs(_ logs: [ActivityLog]) -> Bool {
+        guard logs.count == ActivityStore.legacySampleNotes.count else { return false }
+        let notes = Set(logs.map(\.note))
+        return notes == ActivityStore.legacySampleNotes
+    }
 }
 
 extension ActivityStore {
-    static let sampleLogs: [ActivityLog] = [
-        ActivityLog(timestamp: Calendar.current.date(byAdding: .hour, value: -8, to: .now) ?? .now, note: "Planned the day and answered email.", rating: 6),
-        ActivityLog(timestamp: Calendar.current.date(byAdding: .hour, value: -5, to: .now) ?? .now, note: "Deep work on a study project.", rating: 9),
-        ActivityLog(timestamp: Calendar.current.date(byAdding: .hour, value: -2, to: .now) ?? .now, note: "Met with a class team and outlined next steps.", rating: 7)
+    static let legacySampleNotes: Set<String> = [
+        "Planned the day and answered email.",
+        "Deep work on a study project.",
+        "Met with a class team and outlined next steps."
     ]
 }
 

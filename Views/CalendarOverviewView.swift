@@ -2,20 +2,45 @@ import SwiftUI
 
 struct CalendarOverviewView: View {
     @ObservedObject var store: ActivityStore
+    @State private var logPendingDeletion: ActivityLog?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    MonthCalendarView(selectedDate: bindableDate, logs: store.logs)
-                        .floTimeCard()
+            ZStack {
+                FloTimeTheme.background
+                    .ignoresSafeArea()
 
-                    selectedDayCard
+                ScrollView {
+                    VStack(spacing: 18) {
+                        MonthCalendarView(selectedDate: bindableDate, logs: store.logs)
+                            .floTimeCard()
+
+                        selectedDayCard
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .padding(20)
             }
-            .background(FloTimeTheme.background.ignoresSafeArea())
             .navigationTitle("Calendar")
+            .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog(
+                "Delete this activity?",
+                isPresented: deleteDialogBinding,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    guard let logPendingDeletion else { return }
+                    store.deleteLog(logPendingDeletion)
+                    self.logPendingDeletion = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    logPendingDeletion = nil
+                }
+            } message: {
+                if let logPendingDeletion {
+                    Text(logPendingDeletion.note)
+                }
+            }
         }
     }
 
@@ -34,20 +59,8 @@ struct CalendarOverviewView: View {
             } else {
                 DailyProductivityChartView(points: store.hourlyTrend(on: store.selectedDate))
 
-                ForEach(dayLogs.reversed()) { log in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(log.note)
-                                .foregroundStyle(FloTimeTheme.text)
-                            Text(log.timestamp.formatted(date: .omitted, time: .shortened))
-                                .font(.caption)
-                                .foregroundStyle(FloTimeTheme.mutedText)
-                        }
-
-                        Spacer()
-                        RatingBadge(rating: log.rating)
-                    }
-                    .padding(.vertical, 6)
+                ForEach(dayLogs) { log in
+                    logRow(log)
                 }
             }
         }
@@ -58,6 +71,52 @@ struct CalendarOverviewView: View {
         Binding(
             get: { store.selectedDate },
             set: { store.selectedDate = $0 }
+        )
+    }
+
+    private func logRow(_ log: ActivityLog) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(log.note)
+                    .foregroundStyle(FloTimeTheme.text)
+                Text(log.timestamp.formatted(date: .omitted, time: .shortened))
+                    .font(.caption)
+                    .foregroundStyle(FloTimeTheme.mutedText)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 10) {
+                RatingBadge(rating: log.rating)
+                Menu {
+                    Button("Edit Activity", systemImage: "pencil") {
+                        store.startEditing(log)
+                    }
+                    Button("Delete Activity", systemImage: "trash", role: .destructive) {
+                        logPendingDeletion = log
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundStyle(FloTimeTheme.mutedText)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            store.startEditing(log)
+        }
+    }
+
+    private var deleteDialogBinding: Binding<Bool> {
+        Binding(
+            get: { logPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented {
+                    logPendingDeletion = nil
+                }
+            }
         )
     }
 }

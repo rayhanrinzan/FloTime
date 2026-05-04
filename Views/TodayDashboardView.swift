@@ -3,26 +3,48 @@ import SwiftUI
 struct TodayDashboardView: View {
     @ObservedObject var store: ActivityStore
     let onAddLog: () -> Void
+    @State private var logPendingDeletion: ActivityLog?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    heroCard
-                    chartCard
-                    latestLogsCard
-                }
-                .padding(20)
-            }
-            .background(
+            ZStack {
                 LinearGradient(
                     colors: [FloTimeTheme.background, FloTimeTheme.accent.opacity(0.35)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-            )
+
+                ScrollView {
+                    VStack(spacing: 18) {
+                        heroCard
+                        chartCard
+                        latestLogsCard
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                }
+            }
             .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog(
+                "Delete this activity?",
+                isPresented: deleteDialogBinding,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    guard let logPendingDeletion else { return }
+                    store.deleteLog(logPendingDeletion)
+                    self.logPendingDeletion = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    logPendingDeletion = nil
+                }
+            } message: {
+                if let logPendingDeletion {
+                    Text(logPendingDeletion.note)
+                }
+            }
         }
     }
 
@@ -73,24 +95,12 @@ struct TodayDashboardView: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(FloTimeTheme.text)
 
-            ForEach(store.logs(on: .now).reversed()) { log in
-                HStack(alignment: .top, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(log.note)
-                            .foregroundStyle(FloTimeTheme.text)
-                        Text(log.timestamp.formatted(date: .omitted, time: .shortened))
-                            .font(.caption)
-                            .foregroundStyle(FloTimeTheme.mutedText)
-                    }
-
-                    Spacer()
-                    RatingBadge(rating: log.rating)
-                }
-                .padding(.vertical, 6)
-            }
-
             if store.logs(on: .now).isEmpty {
                 emptyState("No entries yet for today.")
+            } else {
+                ForEach(store.logs(on: .now)) { log in
+                    logRow(log)
+                }
             }
         }
         .floTimeCard()
@@ -118,8 +128,54 @@ struct TodayDashboardView: View {
             .padding(.vertical, 20)
     }
 
+    private func logRow(_ log: ActivityLog) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(log.note)
+                    .foregroundStyle(FloTimeTheme.text)
+                Text(log.timestamp.formatted(date: .omitted, time: .shortened))
+                    .font(.caption)
+                    .foregroundStyle(FloTimeTheme.mutedText)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 10) {
+                RatingBadge(rating: log.rating)
+                Menu {
+                    Button("Edit Activity", systemImage: "pencil") {
+                        store.startEditing(log)
+                    }
+                    Button("Delete Activity", systemImage: "trash", role: .destructive) {
+                        logPendingDeletion = log
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundStyle(FloTimeTheme.mutedText)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            store.startEditing(log)
+        }
+    }
+
     private var averageText: String {
         let average = store.averageRating(on: .now)
         return average == 0 ? "--" : String(format: "%.1f / 10", average)
+    }
+
+    private var deleteDialogBinding: Binding<Bool> {
+        Binding(
+            get: { logPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented {
+                    logPendingDeletion = nil
+                }
+            }
+        )
     }
 }

@@ -9,6 +9,7 @@ struct DraftLogEntry: Identifiable, Hashable {
     var timestamp: Date
     var source: ActivitySource
     var calendarEventID: String?
+    var existingLogID: UUID?
 
     init(
         id: UUID = UUID(),
@@ -18,7 +19,8 @@ struct DraftLogEntry: Identifiable, Hashable {
         rating: Int = 7,
         timestamp: Date = .now,
         source: ActivitySource = .manual,
-        calendarEventID: String? = nil
+        calendarEventID: String? = nil,
+        existingLogID: UUID? = nil
     ) {
         self.id = id
         self.title = title
@@ -28,5 +30,6 @@ struct DraftLogEntry: Identifiable, Hashable {
         self.timestamp = timestamp
         self.source = source
         self.calendarEventID = calendarEventID
+        self.existingLogID = existingLogID
     }
 }
