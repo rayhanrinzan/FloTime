@@ -48,7 +48,7 @@ struct SettingsView: View {
 
                 Picker("Reminder Interval", selection: intervalBinding) {
                     ForEach([15, 30, 45, 60, 90, 120], id: \.self) { minutes in
-                        Text("\(minutes) minutes").tag(minutes)
+                        Text(intervalOptionLabel(for: minutes)).tag(minutes)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -133,6 +133,8 @@ struct SettingsView: View {
                     } label: {
                         Label(connectButtonLabel, systemImage: "globe")
                             .font(.headline)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -146,7 +148,9 @@ struct SettingsView: View {
                             }
                         } label: {
                             Label("Disconnect", systemImage: "xmark.circle")
-                                .font(.headline)
+                                .font(.subheadline.weight(.semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.85)
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
@@ -412,6 +416,17 @@ struct SettingsView: View {
     private func presentGoogleAlert(_ message: String) {
         googleAlertMessage = message
         isShowingGoogleAlert = true
+    }
+
+    private func intervalOptionLabel(for minutes: Int) -> String {
+        switch minutes {
+        case 60:
+            return "1h"
+        case 120:
+            return "2h"
+        default:
+            return "\(minutes)m"
+        }
     }
 }
 
