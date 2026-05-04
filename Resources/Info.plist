@@ -31,15 +31,14 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GoogleOAuthClientID</key>
+	<string>REPLACE_WITH_GOOGLE_CLIENT_ID</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>FloTime reads your calendar so it can mute reminders during selected events and help you log them afterwards.</string>
 	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIImageName</key>
-		<string>FloLogo</string>
-	</dict>
+	<dict/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>

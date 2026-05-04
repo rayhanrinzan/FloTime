@@ -111,27 +111,18 @@ enum AppTab {
 private struct FloTimeSplashView: View {
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color.white, FloTimeTheme.background, FloTimeTheme.accent.opacity(0.45)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            Color.white
+                .ignoresSafeArea()
 
-            VStack(spacing: 18) {
+            VStack(spacing: 14) {
                 Image("FloLogo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 168, height: 168)
-                    .shadow(color: FloTimeTheme.primary.opacity(0.12), radius: 24, x: 0, y: 12)
+                    .frame(width: 104, height: 104)
 
                 Text("FloTime")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(FloTimeTheme.text)
-
-                Text("Tracking your time, one check-in at a time.")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(FloTimeTheme.mutedText)
             }
             .padding(32)
         }

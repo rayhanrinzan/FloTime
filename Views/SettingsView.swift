@@ -85,18 +85,6 @@ struct SettingsView: View {
                     .font(.headline)
                     .foregroundStyle(FloTimeTheme.text)
 
-                TextField("Google OAuth client ID", text: googleClientIDBinding)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .padding(14)
-                    .background(FloTimeTheme.accent.opacity(0.18))
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-                Text("Redirect URI: \(GoogleOAuthService.redirectURI)")
-                    .font(.caption2)
-                    .foregroundStyle(FloTimeTheme.mutedText)
-                    .textSelection(.enabled)
-
                 Text(googleStatusText)
                     .font(.caption)
                     .foregroundStyle(FloTimeTheme.mutedText)
@@ -113,7 +101,7 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(FloTimeTheme.primary)
-                    .disabled(store.settings.googleOAuthClientID.isEmpty || isConnectingGoogle)
+                    .disabled(isConnectingGoogle)
 
                     if store.googleConnectionState.isConnected {
                         Button(role: .destructive) {
@@ -301,21 +289,14 @@ struct SettingsView: View {
         }
     }
 
-    private var googleClientIDBinding: Binding<String> {
-        Binding(
-            get: { store.settings.googleOAuthClientID },
-            set: { store.updateGoogleOAuthClientID($0) }
-        )
-    }
-
     private var googleStatusText: String {
         switch store.googleConnectionState {
         case .disconnected:
-            return "Paste the Google OAuth client ID from your Google Cloud project that is configured for the redirect URI above, then connect. FloTime will open a secure Google sign-in page."
+            return "Tap the button below to sign in with Google and connect your calendar."
         case .connecting:
-            return "Waiting for Google sign-in to finish..."
+            return "Opening Google sign-in..."
         case .connected:
-            return "Google Calendar is connected. Direct Google calendars will appear in the selection list when calendar-aware reminders are enabled."
+            return "Google Calendar is connected. Your Google calendars will appear below when calendar-aware reminders are enabled."
         case .failed(let message):
             return message
         }
@@ -328,7 +309,7 @@ struct SettingsView: View {
         case .connecting:
             return "Connecting..."
         case .disconnected, .failed:
-            return "Connect Google"
+            return "Sign in with Google"
         }
     }
 

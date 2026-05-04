@@ -32,7 +32,7 @@ enum GoogleOAuthError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingClientID:
-            return "Enter a Google OAuth client ID before connecting."
+            return "Google sign-in is not configured in this build yet."
         case .canceled:
             return "Google sign-in was canceled."
         case .invalidRedirect:
@@ -61,6 +61,7 @@ struct GoogleOAuthTokens: Codable {
 
 @MainActor
 final class GoogleOAuthService: NSObject {
+    static let clientIDInfoPlistKey = "GoogleOAuthClientID"
     static let callbackScheme = "com.rayhanrinzan.flotime.oauth"
     static let redirectURI = "\(callbackScheme):/oauth2redirect/google"
     static let calendarScope = "https://www.googleapis.com/auth/calendar.readonly"
@@ -75,6 +76,19 @@ final class GoogleOAuthService: NSObject {
     func storedTokens() -> GoogleOAuthTokens? {
         guard let data = tokenStore.read(account: "google-oauth-tokens") else { return nil }
         return try? JSONDecoder().decode(GoogleOAuthTokens.self, from: data)
+    }
+
+    func configuredClientID() -> String? {
+        guard let rawValue = Bundle.main.object(forInfoDictionaryKey: Self.clientIDInfoPlistKey) as? String else {
+            return nil
+        }
+
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != "REPLACE_WITH_GOOGLE_CLIENT_ID" else {
+            return nil
+        }
+
+        return trimmed
     }
 
     func authorize(clientID: String) async throws -> GoogleOAuthTokens {
