@@ -24,9 +24,11 @@
 		A1000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* SettingsView.swift */; };
 		A10000000000000000000010 /* TodayDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* TodayDashboardView.swift */; };
 		A10000000000000000000011 /* DailyProductivityChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* DailyProductivityChartView.swift */; };
-		A10000000000000000000012 /* MonthCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* MonthCalendarView.swift */; };
-		A10000000000000000000013 /* RatingBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* RatingBadge.swift */; };
-		A10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Assets.xcassets */; };
+			A10000000000000000000012 /* MonthCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* MonthCalendarView.swift */; };
+			A10000000000000000000013 /* RatingBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* RatingBadge.swift */; };
+			A10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Assets.xcassets */; };
+			A10000000000000000000015 /* GoogleOAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* GoogleOAuthService.swift */; };
+			A10000000000000000000016 /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* GoogleCalendarService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,9 +51,11 @@
 		B10000000000000000000011 /* DailyProductivityChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyProductivityChartView.swift; sourceTree = "<group>"; };
 		B10000000000000000000012 /* MonthCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthCalendarView.swift; sourceTree = "<group>"; };
 		B10000000000000000000013 /* RatingBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingBadge.swift; sourceTree = "<group>"; };
-		B10000000000000000000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B10000000000000000000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B10000000000000000000016 /* FloTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FloTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			B10000000000000000000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+			B10000000000000000000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+			B10000000000000000000016 /* FloTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FloTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			B10000000000000000000017 /* GoogleOAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleOAuthService.swift; sourceTree = "<group>"; };
+			B10000000000000000000018 /* GoogleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,15 +121,17 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		D10000000000000000000006 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				B1000000000000000000000A /* CalendarService.swift */,
-				B1000000000000000000000B /* NotificationScheduler.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
+			D10000000000000000000006 /* Services */ = {
+				isa = PBXGroup;
+				children = (
+					B1000000000000000000000A /* CalendarService.swift */,
+					B1000000000000000000000B /* NotificationScheduler.swift */,
+					B10000000000000000000017 /* GoogleOAuthService.swift */,
+					B10000000000000000000018 /* GoogleCalendarService.swift */,
+				);
+				path = Services;
+				sourceTree = "<group>";
+			};
 		D10000000000000000000007 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
@@ -243,9 +249,11 @@
 				A10000000000000000000007 /* AppSettings.swift in Sources */,
 				A10000000000000000000008 /* CalendarEventSnapshot.swift in Sources */,
 				A10000000000000000000009 /* DraftLogEntry.swift in Sources */,
-				A1000000000000000000000A /* CalendarService.swift in Sources */,
-				A1000000000000000000000B /* NotificationScheduler.swift in Sources */,
-				A1000000000000000000000C /* ActivityStore.swift in Sources */,
+					A1000000000000000000000A /* CalendarService.swift in Sources */,
+					A1000000000000000000000B /* NotificationScheduler.swift in Sources */,
+					A10000000000000000000015 /* GoogleOAuthService.swift in Sources */,
+					A10000000000000000000016 /* GoogleCalendarService.swift in Sources */,
+					A1000000000000000000000C /* ActivityStore.swift in Sources */,
 				A1000000000000000000000D /* CalendarOverviewView.swift in Sources */,
 				A1000000000000000000000E /* LogEntrySheet.swift in Sources */,
 				A1000000000000000000000F /* SettingsView.swift in Sources */,

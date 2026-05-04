@@ -71,7 +71,7 @@ struct SettingsView: View {
     private var calendarCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             Toggle(isOn: calendarSyncBinding) {
-                Text("Use Device Calendar")
+                Text("Use Calendar-Aware Reminders")
                     .foregroundStyle(FloTimeTheme.text)
             }
             .tint(FloTimeTheme.primary)
@@ -80,47 +80,155 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(FloTimeTheme.mutedText)
 
-            Toggle(isOn: suppressDuringEventBinding) {
-                Text("Mute During Selected Events")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Google Calendar")
+                    .font(.headline)
                     .foregroundStyle(FloTimeTheme.text)
-            }
-            .tint(FloTimeTheme.primary)
 
-            Toggle(isOn: promptAfterEventBinding) {
-                Text("Prompt to Log After Selected Events")
-                    .foregroundStyle(FloTimeTheme.text)
-            }
-            .tint(FloTimeTheme.primary)
+                TextField("Google OAuth client ID", text: googleClientIDBinding)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .padding(14)
+                    .background(FloTimeTheme.accent.opacity(0.18))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-            if store.upcomingEvents.isEmpty {
-                Text("Upcoming events will appear here after calendar access is granted.")
+                Text("Redirect URI: \(GoogleOAuthService.redirectURI)")
+                    .font(.caption2)
+                    .foregroundStyle(FloTimeTheme.mutedText)
+                    .textSelection(.enabled)
+
+                Text(googleStatusText)
                     .font(.caption)
                     .foregroundStyle(FloTimeTheme.mutedText)
-            } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Choose Event Behavior")
-                        .font(.headline)
-                        .foregroundStyle(FloTimeTheme.text)
 
-                    ForEach(store.upcomingEvents.prefix(6)) { event in
-                        EventPreferenceRow(
-                            event: event,
-                            preference: store.preference(for: event),
-                            onChange: { muteDuringEvent, promptToLogAfter in
-                                Task {
-                                    await store.updateEventPreference(
-                                        for: event,
-                                        muteDuringEvent: muteDuringEvent,
-                                        promptToLogAfter: promptToLogAfter
-                                    )
-                                }
+                HStack(spacing: 10) {
+                    Button {
+                        Task {
+                            await store.connectGoogleCalendar()
+                        }
+                    } label: {
+                        Label(connectButtonLabel, systemImage: "globe")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(FloTimeTheme.primary)
+                    .disabled(store.settings.googleOAuthClientID.isEmpty || isConnectingGoogle)
+
+                    if store.googleConnectionState.isConnected {
+                        Button(role: .destructive) {
+                            Task {
+                                await store.disconnectGoogleCalendar()
                             }
+                        } label: {
+                            Label("Disconnect", systemImage: "xmark.circle")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+            .padding(14)
+            .background(FloTimeTheme.accent.opacity(0.20))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+
+            if store.settings.calendarSyncEnabled && hasAvailableCalendarSources {
+                Toggle(isOn: suppressDuringEventBinding) {
+                    Text("Mute During Selected Events")
+                        .foregroundStyle(FloTimeTheme.text)
+                }
+                .tint(FloTimeTheme.primary)
+
+                Toggle(isOn: promptAfterEventBinding) {
+                    Text("Prompt to Log After Selected Events")
+                        .foregroundStyle(FloTimeTheme.text)
+                }
+                .tint(FloTimeTheme.primary)
+
+                if store.availableCalendars.isEmpty {
+                    Text("No synced calendars were detected yet.")
+                        .font(.caption)
+                        .foregroundStyle(FloTimeTheme.mutedText)
+                } else {
+                    calendarSelectionSection(
+                        title: "Google Calendars",
+                        description: store.googleCalendars().isEmpty
+                            ? "No Google calendars were returned for this connected account yet."
+                            : "Choose which connected Google calendars FloTime should read.",
+                        calendars: store.googleCalendars()
+                    )
+
+                    if !store.nonGoogleCalendars().isEmpty {
+                        calendarSelectionSection(
+                            title: "Apple / Other Calendars",
+                            description: "Choose any other calendars FloTime should use for quiet-time detection and event logging.",
+                            calendars: store.nonGoogleCalendars()
                         )
+                    }
+                }
+
+                if store.upcomingEvents.isEmpty {
+                    Text("Upcoming events from your selected calendars will appear here.")
+                        .font(.caption)
+                        .foregroundStyle(FloTimeTheme.mutedText)
+                } else {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Choose Event Behavior")
+                            .font(.headline)
+                            .foregroundStyle(FloTimeTheme.text)
+
+                        ForEach(store.upcomingEvents.prefix(6)) { event in
+                            EventPreferenceRow(
+                                event: event,
+                                preference: store.preference(for: event),
+                                onChange: { muteDuringEvent, promptToLogAfter in
+                                    Task {
+                                        await store.updateEventPreference(
+                                            for: event,
+                                            muteDuringEvent: muteDuringEvent,
+                                            promptToLogAfter: promptToLogAfter
+                                        )
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
         .floTimeCard()
+    }
+
+    private func calendarSelectionSection(
+        title: String,
+        description: String,
+        calendars: [DeviceCalendarSnapshot]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(FloTimeTheme.text)
+
+            Text(description)
+                .font(.caption)
+                .foregroundStyle(FloTimeTheme.mutedText)
+
+            if calendars.isEmpty {
+                EmptyView()
+            } else {
+                ForEach(calendars) { calendar in
+                    CalendarSelectionRow(
+                        calendar: calendar,
+                        isSelected: store.isCalendarSelected(calendar)
+                    ) { isSelected in
+                        Task {
+                            await store.setCalendarSelection(calendar.id, isSelected: isSelected)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private var notificationBinding: Binding<Bool> {
@@ -179,14 +287,60 @@ struct SettingsView: View {
     }
 
     private var calendarStatusText: String {
+        if !store.settings.calendarSyncEnabled {
+            return "Turn this on if you want FloTime to mute reminders during events and ask whether to log them after they end."
+        }
+
         switch store.calendarPermissionState {
         case .unknown:
-            return "FloTime can read synced Apple or Google calendar events on your device."
+            return "FloTime can use Apple calendars already on your iPhone, plus a direct Google Calendar login if you connect one below."
         case .authorized:
-            return "Calendar connected. Select events that should pause reminders or trigger follow-up prompts."
+            return "Apple calendar access is on. You can also connect Google directly below."
         case .denied:
-            return "Calendar access is unavailable. You can re-enable it later in iPhone Settings."
+            return "Apple calendar access is unavailable right now, but the Google connection below can still be used."
         }
+    }
+
+    private var googleClientIDBinding: Binding<String> {
+        Binding(
+            get: { store.settings.googleOAuthClientID },
+            set: { store.updateGoogleOAuthClientID($0) }
+        )
+    }
+
+    private var googleStatusText: String {
+        switch store.googleConnectionState {
+        case .disconnected:
+            return "Paste the Google OAuth client ID from your Google Cloud project that is configured for the redirect URI above, then connect. FloTime will open a secure Google sign-in page."
+        case .connecting:
+            return "Waiting for Google sign-in to finish..."
+        case .connected:
+            return "Google Calendar is connected. Direct Google calendars will appear in the selection list when calendar-aware reminders are enabled."
+        case .failed(let message):
+            return message
+        }
+    }
+
+    private var connectButtonLabel: String {
+        switch store.googleConnectionState {
+        case .connected:
+            return "Reconnect Google"
+        case .connecting:
+            return "Connecting..."
+        case .disconnected, .failed:
+            return "Connect Google"
+        }
+    }
+
+    private var isConnectingGoogle: Bool {
+        if case .connecting = store.googleConnectionState {
+            return true
+        }
+        return false
+    }
+
+    private var hasAvailableCalendarSources: Bool {
+        store.calendarPermissionState == .authorized || store.googleConnectionState.isConnected || !store.availableCalendars.isEmpty
     }
 }
 
@@ -271,9 +425,19 @@ struct EventPreferenceRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(event.title)
-                .font(.headline)
-                .foregroundStyle(FloTimeTheme.text)
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(event.title)
+                        .font(.headline)
+                        .foregroundStyle(FloTimeTheme.text)
+
+                    Text("\(event.provider.displayName) • \(event.calendarTitle)")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(FloTimeTheme.mutedText)
+                }
+
+                Spacer()
+            }
 
             Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
                 .font(.caption)
@@ -293,5 +457,27 @@ struct EventPreferenceRow: View {
         .onChange(of: promptToLogAfter) { _, updated in
             onChange(muteDuringEvent, updated)
         }
+    }
+}
+
+struct CalendarSelectionRow: View {
+    let calendar: DeviceCalendarSnapshot
+    let isSelected: Bool
+    let onChange: (Bool) -> Void
+
+    var body: some View {
+        Toggle(isOn: Binding(get: { isSelected }, set: onChange)) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(calendar.title)
+                    .foregroundStyle(FloTimeTheme.text)
+                Text(calendar.sourceTitle)
+                    .font(.caption)
+                    .foregroundStyle(FloTimeTheme.mutedText)
+            }
+        }
+        .tint(FloTimeTheme.primary)
+        .padding(14)
+        .background(FloTimeTheme.accent.opacity(0.24))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }

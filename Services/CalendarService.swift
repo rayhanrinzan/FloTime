@@ -35,18 +35,68 @@ final class CalendarService {
         }
     }
 
-    func fetchEvents(from startDate: Date, to endDate: Date) async throws -> [CalendarEventSnapshot] {
-        let predicate = store.predicateForEvents(withStart: startDate, end: endDate, calendars: nil)
+    func availableCalendars() -> [DeviceCalendarSnapshot] {
+        store.calendars(for: .event)
+            .map(calendarSnapshot(from:))
+            .sorted {
+                if $0.provider == $1.provider {
+                    if $0.sourceTitle == $1.sourceTitle {
+                        return $0.title < $1.title
+                    }
+                    return $0.sourceTitle < $1.sourceTitle
+                }
+                return $0.provider.rawValue < $1.provider.rawValue
+            }
+    }
+
+    func fetchEvents(
+        from startDate: Date,
+        to endDate: Date,
+        calendarIdentifiers: Set<String>
+    ) async throws -> [CalendarEventSnapshot] {
+        let selectedCalendars: [EKCalendar]? = calendarIdentifiers.isEmpty
+            ? nil
+            : store.calendars(for: .event).filter { calendarIdentifiers.contains($0.calendarIdentifier) }
+        let predicate = store.predicateForEvents(withStart: startDate, end: endDate, calendars: selectedCalendars)
         return store.events(matching: predicate)
             .sorted { $0.startDate < $1.startDate }
             .map {
-                CalendarEventSnapshot(
+                let provider = provider(for: $0.calendar)
+                return CalendarEventSnapshot(
                     id: $0.eventIdentifier ?? UUID().uuidString,
                     title: $0.title,
                     startDate: $0.startDate,
                     endDate: $0.endDate,
-                    isAllDay: $0.isAllDay
+                    isAllDay: $0.isAllDay,
+                    calendarIdentifier: $0.calendar.calendarIdentifier,
+                    calendarTitle: $0.calendar.title,
+                    sourceTitle: $0.calendar.source.title,
+                    provider: provider
                 )
             }
+    }
+
+    private func calendarSnapshot(from calendar: EKCalendar) -> DeviceCalendarSnapshot {
+        DeviceCalendarSnapshot(
+            id: calendar.calendarIdentifier,
+            title: calendar.title,
+            sourceTitle: calendar.source.title,
+            provider: provider(for: calendar)
+        )
+    }
+
+    private func provider(for calendar: EKCalendar) -> CalendarProvider {
+        let sourceText = "\(calendar.source.title) \(calendar.title)".lowercased()
+
+        if sourceText.contains("google") || sourceText.contains("gmail") {
+            return .google
+        }
+
+        switch calendar.source.sourceType {
+        case .local, .birthdays, .mobileMe:
+            return .apple
+        default:
+            return .other
+        }
     }
 }

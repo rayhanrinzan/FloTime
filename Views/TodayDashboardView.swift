@@ -20,6 +20,7 @@ struct TodayDashboardView: View {
                         heroCard
                         chartCard
                         latestLogsCard
+                        restDayCard
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -106,6 +107,37 @@ struct TodayDashboardView: View {
         .floTimeCard()
     }
 
+    private var restDayCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(isRestDayToday ? "Rest day is on." : "Need a lighter day?")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(FloTimeTheme.text)
+
+            Text(
+                isRestDayToday
+                    ? "FloTime will pause check-ins and event follow-ups for the rest of today."
+                    : "Mark today as a rest day when you need a break. FloTime will pause productivity reminders until tomorrow."
+            )
+            .foregroundStyle(FloTimeTheme.mutedText)
+
+            Button {
+                Task {
+                    await store.toggleRestDay(on: .now)
+                }
+            } label: {
+                Label(
+                    isRestDayToday ? "End Rest Day" : "Take a Rest Day",
+                    systemImage: isRestDayToday ? "sun.max" : "bed.double.fill"
+                )
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(FloTimeTheme.primary)
+        }
+        .floTimeCard()
+    }
+
     private func metric(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -166,6 +198,10 @@ struct TodayDashboardView: View {
     private var averageText: String {
         let average = store.averageRating(on: .now)
         return average == 0 ? "--" : String(format: "%.1f / 10", average)
+    }
+
+    private var isRestDayToday: Bool {
+        store.isRestDay(.now)
     }
 
     private var deleteDialogBinding: Binding<Bool> {

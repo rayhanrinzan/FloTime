@@ -8,6 +8,9 @@ struct AppSettings: Codable, Hashable {
     var suppressDuringSelectedEvents: Bool
     var promptAfterSelectedEvents: Bool
     var selectedEventPreferences: [CalendarEventPreference]
+    var selectedCalendarIdentifiers: [String]
+    var restDayIdentifiers: [String]
+    var googleOAuthClientID: String
 
     static let `default` = AppSettings(
         promptIntervalMinutes: 30,
@@ -19,8 +22,62 @@ struct AppSettings: Codable, Hashable {
         calendarSyncEnabled: false,
         suppressDuringSelectedEvents: true,
         promptAfterSelectedEvents: true,
-        selectedEventPreferences: []
+        selectedEventPreferences: [],
+        selectedCalendarIdentifiers: [],
+        restDayIdentifiers: [],
+        googleOAuthClientID: ""
     )
+
+    enum CodingKeys: String, CodingKey {
+        case promptIntervalMinutes
+        case notificationsEnabled
+        case quietWindows
+        case calendarSyncEnabled
+        case suppressDuringSelectedEvents
+        case promptAfterSelectedEvents
+        case selectedEventPreferences
+        case selectedCalendarIdentifiers
+        case restDayIdentifiers
+        case googleOAuthClientID
+    }
+
+    init(
+        promptIntervalMinutes: Int,
+        notificationsEnabled: Bool,
+        quietWindows: [QuietWindow],
+        calendarSyncEnabled: Bool,
+        suppressDuringSelectedEvents: Bool,
+        promptAfterSelectedEvents: Bool,
+        selectedEventPreferences: [CalendarEventPreference],
+        selectedCalendarIdentifiers: [String],
+        restDayIdentifiers: [String],
+        googleOAuthClientID: String
+    ) {
+        self.promptIntervalMinutes = promptIntervalMinutes
+        self.notificationsEnabled = notificationsEnabled
+        self.quietWindows = quietWindows
+        self.calendarSyncEnabled = calendarSyncEnabled
+        self.suppressDuringSelectedEvents = suppressDuringSelectedEvents
+        self.promptAfterSelectedEvents = promptAfterSelectedEvents
+        self.selectedEventPreferences = selectedEventPreferences
+        self.selectedCalendarIdentifiers = selectedCalendarIdentifiers
+        self.restDayIdentifiers = restDayIdentifiers
+        self.googleOAuthClientID = googleOAuthClientID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        promptIntervalMinutes = try container.decode(Int.self, forKey: .promptIntervalMinutes)
+        notificationsEnabled = try container.decode(Bool.self, forKey: .notificationsEnabled)
+        quietWindows = try container.decode([QuietWindow].self, forKey: .quietWindows)
+        calendarSyncEnabled = try container.decode(Bool.self, forKey: .calendarSyncEnabled)
+        suppressDuringSelectedEvents = try container.decode(Bool.self, forKey: .suppressDuringSelectedEvents)
+        promptAfterSelectedEvents = try container.decode(Bool.self, forKey: .promptAfterSelectedEvents)
+        selectedEventPreferences = try container.decode([CalendarEventPreference].self, forKey: .selectedEventPreferences)
+        selectedCalendarIdentifiers = try container.decodeIfPresent([String].self, forKey: .selectedCalendarIdentifiers) ?? []
+        restDayIdentifiers = try container.decodeIfPresent([String].self, forKey: .restDayIdentifiers) ?? []
+        googleOAuthClientID = try container.decodeIfPresent(String.self, forKey: .googleOAuthClientID) ?? ""
+    }
 }
 
 struct QuietWindow: Identifiable, Codable, Hashable {

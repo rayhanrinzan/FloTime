@@ -41,6 +41,7 @@ final class NotificationScheduler {
         for event in events {
             guard let preference = preferenceMap[event.id], preference.promptToLogAfter else { continue }
             guard event.endDate > .now else { continue }
+            guard !isRestDay(date: event.endDate, restDayIdentifiers: settings.restDayIdentifiers) else { continue }
 
             let content = UNMutableNotificationContent()
             content.title = "Log This Event?"
@@ -78,6 +79,9 @@ final class NotificationScheduler {
 
         while results.count < maximumCount {
             cursor = cursor.addingTimeInterval(interval)
+            if isRestDay(date: cursor, restDayIdentifiers: settings.restDayIdentifiers) {
+                continue
+            }
             if shouldMute(date: cursor, quietWindows: settings.quietWindows) {
                 continue
             }
@@ -113,6 +117,11 @@ final class NotificationScheduler {
         }
     }
 
+    private func isRestDay(date: Date, restDayIdentifiers: [String]) -> Bool {
+        let identifier = NotificationScheduler.dayFormatter.string(from: date)
+        return restDayIdentifiers.contains(identifier)
+    }
+
     private func intervalDescription(minutes: Int) -> String {
         if minutes < 60 {
             return "\(minutes) minutes"
@@ -137,4 +146,14 @@ final class NotificationScheduler {
             }
         }
     }
+}
+
+extension NotificationScheduler {
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }
