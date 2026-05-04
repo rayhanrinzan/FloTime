@@ -394,7 +394,7 @@ struct SettingsView: View {
     private var connectButtonLabel: String {
         switch store.googleConnectionState {
         case .connected:
-            return "Reconnect Google"
+            return "Reconnect"
         case .connecting:
             return "Connecting..."
         case .disconnected, .failed:
