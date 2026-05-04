@@ -8,7 +8,7 @@ struct MonthCalendarView: View {
 
     @State private var displayedMonth = Calendar.current.startOfDay(for: .now)
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
     var body: some View {
         VStack(spacing: 16) {
@@ -26,7 +26,7 @@ struct MonthCalendarView: View {
                         dayCell(for: date)
                     } else {
                         Color.clear
-                            .frame(height: 56)
+                            .frame(height: 44)
                     }
                 }
             }
@@ -100,39 +100,39 @@ struct MonthCalendarView: View {
         Button {
             selectedDate = date
         } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .top) {
-                    Text("\(Calendar.current.component(.day, from: date))")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isSelected ? .white : FloTimeTheme.text)
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(backgroundColor(isSelected: isSelected, average: average, isRestDay: isRestDay))
 
-                    Spacer(minLength: 4)
-
-                    if isRestDay {
-                        Image(systemName: "bed.double.fill")
-                            .font(.caption2.weight(.bold))
-                            .foregroundStyle(isSelected ? .white : FloTimeTheme.primary)
-                    }
-                }
-
-                Spacer(minLength: 0)
-
+                Text("\(Calendar.current.component(.day, from: date))")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(isSelected ? .white : FloTimeTheme.text)
+                    .fixedSize()
+                    .padding(.leading, 8)
+                    .padding(.top, 7)
+            }
+            .overlay(alignment: .topTrailing) {
                 if isRestDay {
-                    Text("REST")
+                    Image(systemName: "bed.double.fill")
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(isSelected ? .white : FloTimeTheme.primary)
+                        .padding(6)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 7)
-            .frame(height: 56)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(backgroundColor(isSelected: isSelected, average: average, isRestDay: isRestDay))
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(isRestDay && !isSelected ? FloTimeTheme.primary.opacity(0.6) : .clear, lineWidth: 1.5)
+            .overlay(alignment: .bottomLeading) {
+                if isRestDay {
+                    Circle()
+                        .fill(isSelected ? Color.white.opacity(0.9) : FloTimeTheme.primary)
+                        .frame(width: 7, height: 7)
+                        .padding(.leading, 8)
+                        .padding(.bottom, 7)
+                }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isRestDay && !isSelected ? FloTimeTheme.primary.opacity(0.55) : .clear, lineWidth: 1.5)
+            }
+            .frame(height: 44)
         }
         .buttonStyle(.plain)
     }

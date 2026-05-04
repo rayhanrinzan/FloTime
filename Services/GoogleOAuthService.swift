@@ -28,7 +28,7 @@ enum GoogleOAuthError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingClientID:
-            return "Google sign-in is not configured in this build yet."
+            return "Google sign-in is not configured yet. Add GoogleService-Info.plist to the FloTime target or set GIDClientID in Info.plist."
         case .missingCallbackScheme:
             return "FloTime still needs the reversed Google client ID URL scheme in Info.plist."
         case .missingCalendarScope:
@@ -66,16 +66,21 @@ final class GoogleOAuthService {
     }
 
     func configuredClientID() -> String? {
-        guard let rawValue = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
+        if let infoPlistValue = sanitizedClientID(
+            Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String
+        ) {
+            return infoPlistValue
+        }
+
+        guard
+            let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+            let plist = NSDictionary(contentsOfFile: path),
+            let googleServiceValue = sanitizedClientID(plist["CLIENT_ID"] as? String)
+        else {
             return nil
         }
 
-        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, trimmed != "REPLACE_WITH_GOOGLE_IOS_CLIENT_ID" else {
-            return nil
-        }
-
-        return trimmed
+        return googleServiceValue
     }
 
     func restorePreviousSignInIfPossible() async {
@@ -187,5 +192,14 @@ final class GoogleOAuthService {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
 
         return schemes.contains { !$0.isEmpty && $0 != "REPLACE_WITH_REVERSED_GOOGLE_CLIENT_ID" }
+    }
+
+    private func sanitizedClientID(_ rawValue: String?) -> String? {
+        guard let rawValue else { return nil }
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != "REPLACE_WITH_GOOGLE_IOS_CLIENT_ID" else {
+            return nil
+        }
+        return trimmed
     }
 }

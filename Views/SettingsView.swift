@@ -105,6 +105,10 @@ struct SettingsView: View {
                         Text(googleSetupIssue)
                             .font(.caption)
                             .foregroundStyle(FloTimeTheme.text)
+
+                        Text("Fastest fix: add your Google iOS OAuth `GoogleService-Info.plist` file to the FloTime target, then make sure the reversed client ID is also listed under `CFBundleURLSchemes` in Info.plist.")
+                            .font(.caption)
+                            .foregroundStyle(FloTimeTheme.mutedText)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
