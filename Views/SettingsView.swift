@@ -4,6 +4,8 @@ struct SettingsView: View {
     @ObservedObject var store: ActivityStore
     @State private var isShowingGoogleAlert = false
     @State private var googleAlertMessage = ""
+    @State private var isGoogleCalendarsExpanded = false
+    @State private var isDeviceCalendarsExpanded = false
 
     var body: some View {
         NavigationStack {
@@ -173,21 +175,23 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(FloTimeTheme.mutedText)
                 } else {
-                    calendarSelectionSection(
+                    calendarProviderSection(
                         title: "Google Calendars",
                         description: store.googleCalendars().isEmpty
                             ? "No Google calendars were returned for this connected account yet."
-                            : "Choose which connected Google calendars FloTime should read.",
+                            : "Turn Google calendars on or off as a group, then expand to fine-tune individual calendars.",
+                        isEnabled: googleCalendarsEnabledBinding,
+                        isExpanded: $isGoogleCalendarsExpanded,
                         calendars: store.googleCalendars()
                     )
 
-                    if !store.nonGoogleCalendars().isEmpty {
-                        calendarSelectionSection(
-                            title: "Apple / Other Calendars",
-                            description: "Choose any other calendars FloTime should use for quiet-time detection and event logging.",
-                            calendars: store.nonGoogleCalendars()
-                        )
-                    }
+                    calendarProviderSection(
+                        title: "Apple / Device Calendars",
+                        description: "Turn Apple and other device-synced calendars on or off as a group, then expand to fine-tune individual calendars.",
+                        isEnabled: deviceCalendarsEnabledBinding,
+                        isExpanded: $isDeviceCalendarsExpanded,
+                        calendars: store.deviceCalendars()
+                    )
                 }
 
                 if store.upcomingEvents.isEmpty {
@@ -222,35 +226,55 @@ struct SettingsView: View {
         .floTimeCard()
     }
 
-    private func calendarSelectionSection(
+    private func calendarProviderSection(
         title: String,
         description: String,
+        isEnabled: Binding<Bool>,
+        isExpanded: Binding<Bool>,
         calendars: [DeviceCalendarSnapshot]
     ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(FloTimeTheme.text)
+            Toggle(isOn: isEnabled) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(FloTimeTheme.text)
+            }
+            .tint(FloTimeTheme.primary)
 
             Text(description)
                 .font(.caption)
                 .foregroundStyle(FloTimeTheme.mutedText)
 
-            if calendars.isEmpty {
-                EmptyView()
-            } else {
-                ForEach(calendars) { calendar in
-                    CalendarSelectionRow(
-                        calendar: calendar,
-                        isSelected: store.isCalendarSelected(calendar)
-                    ) { isSelected in
-                        Task {
-                            await store.setCalendarSelection(calendar.id, isSelected: isSelected)
+            if !calendars.isEmpty {
+                DisclosureGroup(isExpanded: isExpanded) {
+                    VStack(spacing: 10) {
+                        ForEach(calendars) { calendar in
+                            CalendarSelectionRow(
+                                calendar: calendar,
+                                isSelected: store.isCalendarSelected(calendar),
+                                isEnabled: isEnabled.wrappedValue
+                            ) { isSelected in
+                                Task {
+                                    await store.setCalendarSelection(calendar.id, isSelected: isSelected)
+                                }
+                            }
                         }
                     }
+                    .padding(.top, 8)
+                } label: {
+                    HStack {
+                        Text("\(calendars.count) calendars")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(FloTimeTheme.text)
+                        Spacer()
+                    }
                 }
+                .tint(FloTimeTheme.primary)
             }
         }
+        .padding(14)
+        .background(FloTimeTheme.accent.opacity(0.16))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var notificationBinding: Binding<Bool> {
@@ -281,6 +305,28 @@ struct SettingsView: View {
             set: { value in
                 Task {
                     await store.setCalendarSyncEnabled(value)
+                }
+            }
+        )
+    }
+
+    private var deviceCalendarsEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { store.settings.deviceCalendarsEnabled },
+            set: { value in
+                Task {
+                    await store.setDeviceCalendarsEnabled(value)
+                }
+            }
+        )
+    }
+
+    private var googleCalendarsEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { store.settings.googleCalendarsEnabled },
+            set: { value in
+                Task {
+                    await store.setGoogleCalendarsEnabled(value)
                 }
             }
         )
@@ -488,6 +534,7 @@ struct EventPreferenceRow: View {
 struct CalendarSelectionRow: View {
     let calendar: DeviceCalendarSnapshot
     let isSelected: Bool
+    let isEnabled: Bool
     let onChange: (Bool) -> Void
 
     var body: some View {
@@ -501,6 +548,8 @@ struct CalendarSelectionRow: View {
             }
         }
         .tint(FloTimeTheme.primary)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.55)
         .padding(14)
         .background(FloTimeTheme.accent.opacity(0.24))
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))

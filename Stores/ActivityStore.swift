@@ -243,10 +243,38 @@ final class ActivityStore: ObservableObject {
             settings.selectedCalendarIdentifiers.removeAll { $0 == calendarID }
         }
 
+        settings.hasInitializedCalendarSelections = true
+
         save()
 
         if settings.calendarSyncEnabled {
             await refreshCalendarEvents()
+        }
+    }
+
+    func setDeviceCalendarsEnabled(_ isEnabled: Bool) async {
+        settings.deviceCalendarsEnabled = isEnabled
+        if isEnabled {
+            selectAllCalendarsIfNeeded(in: deviceCalendars())
+        }
+        save()
+        if settings.calendarSyncEnabled {
+            await refreshCalendarEvents()
+        } else {
+            await rescheduleNotifications()
+        }
+    }
+
+    func setGoogleCalendarsEnabled(_ isEnabled: Bool) async {
+        settings.googleCalendarsEnabled = isEnabled
+        if isEnabled {
+            selectAllCalendarsIfNeeded(in: googleCalendars())
+        }
+        save()
+        if settings.calendarSyncEnabled {
+            await refreshCalendarEvents()
+        } else {
+            await rescheduleNotifications()
         }
     }
 
@@ -328,15 +356,19 @@ final class ActivityStore: ObservableObject {
         guard let end = Calendar.current.date(byAdding: .day, value: 7, to: start) else { return }
 
         let selectedIDs = Set(settings.selectedCalendarIdentifiers)
-        let deviceSelectedIDs = selectedIDs.filter { !$0.hasPrefix("google:") }
-        let googleSelectedIDs = selectedIDs.filter { $0.hasPrefix("google:") }
+        let deviceSelectedIDs = settings.deviceCalendarsEnabled
+            ? selectedIDs.filter { !$0.hasPrefix("google:") }
+            : []
+        let googleSelectedIDs = settings.googleCalendarsEnabled
+            ? selectedIDs.filter { $0.hasPrefix("google:") }
+            : []
 
         do {
-            if !deviceSelectedIDs.isEmpty || calendarPermissionState == .authorized {
+            if !deviceSelectedIDs.isEmpty {
                 let deviceEvents = try await calendarService.fetchEvents(
                     from: start,
                     to: end,
-                    calendarIdentifiers: deviceSelectedIDs
+                    calendarIdentifiers: Set(deviceSelectedIDs)
                 )
                 mergedEvents.append(contentsOf: deviceEvents)
             }
@@ -347,7 +379,7 @@ final class ActivityStore: ObservableObject {
         if !googleSelectedIDs.isEmpty && googleConnectionState.isConnected {
             do {
                 let googleEvents = try await googleCalendarService.fetchEvents(
-                    calendarIdentifiers: googleSelectedIDs,
+                    calendarIdentifiers: Set(googleSelectedIDs),
                     from: start,
                     to: end
                 )
@@ -377,7 +409,7 @@ final class ActivityStore: ObservableObject {
         availableCalendars.filter { $0.provider == .google }
     }
 
-    func nonGoogleCalendars() -> [DeviceCalendarSnapshot] {
+    func deviceCalendars() -> [DeviceCalendarSnapshot] {
         availableCalendars.filter { $0.provider != .google }
     }
 
@@ -472,17 +504,44 @@ final class ActivityStore: ObservableObject {
         let availableIDs = Set(calendars.map(\.id))
         let filtered = settings.selectedCalendarIdentifiers.filter { availableIDs.contains($0) }
 
-        if filtered.isEmpty && !calendars.isEmpty {
-            settings.selectedCalendarIdentifiers = calendars.map(\.id)
-            save()
-        } else if filtered.count != settings.selectedCalendarIdentifiers.count {
+        if filtered.count != settings.selectedCalendarIdentifiers.count {
             settings.selectedCalendarIdentifiers = filtered
             save()
         }
+
+        initializeCalendarSelectionsIfNeeded(with: calendars)
     }
 
     private func dayIdentifier(for date: Date) -> String {
         ActivityStore.dayFormatter.string(from: date)
+    }
+
+    private func initializeCalendarSelectionsIfNeeded(with calendars: [DeviceCalendarSnapshot]) {
+        guard !settings.hasInitializedCalendarSelections else { return }
+
+        var idsToSelect: [String] = []
+        if settings.deviceCalendarsEnabled {
+            idsToSelect.append(contentsOf: calendars.filter { $0.provider != .google }.map(\.id))
+        }
+        if settings.googleCalendarsEnabled {
+            idsToSelect.append(contentsOf: calendars.filter { $0.provider == .google }.map(\.id))
+        }
+
+        settings.selectedCalendarIdentifiers = Array(Set(idsToSelect)).sorted()
+        settings.hasInitializedCalendarSelections = true
+        save()
+    }
+
+    private func selectAllCalendarsIfNeeded(in calendars: [DeviceCalendarSnapshot]) {
+        let availableIDs = Set(calendars.map(\.id))
+        let selectedIDs = Set(settings.selectedCalendarIdentifiers)
+        if !selectedIDs.isDisjoint(with: availableIDs) {
+            return
+        }
+
+        settings.selectedCalendarIdentifiers.append(contentsOf: calendars.map(\.id))
+        settings.selectedCalendarIdentifiers = Array(Set(settings.selectedCalendarIdentifiers)).sorted()
+        settings.hasInitializedCalendarSelections = true
     }
 }
 

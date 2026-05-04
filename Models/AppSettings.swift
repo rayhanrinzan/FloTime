@@ -5,11 +5,14 @@ struct AppSettings: Codable, Hashable {
     var notificationsEnabled: Bool
     var quietWindows: [QuietWindow]
     var calendarSyncEnabled: Bool
+    var deviceCalendarsEnabled: Bool
+    var googleCalendarsEnabled: Bool
     var suppressDuringSelectedEvents: Bool
     var promptAfterSelectedEvents: Bool
     var selectedEventPreferences: [CalendarEventPreference]
     var selectedCalendarIdentifiers: [String]
     var restDayIdentifiers: [String]
+    var hasInitializedCalendarSelections: Bool
 
     static let `default` = AppSettings(
         promptIntervalMinutes: 30,
@@ -19,11 +22,14 @@ struct AppSettings: Codable, Hashable {
             QuietWindow(name: "Work / School", startMinutes: 9 * 60, endMinutes: 17 * 60, isEnabled: false)
         ],
         calendarSyncEnabled: false,
+        deviceCalendarsEnabled: true,
+        googleCalendarsEnabled: true,
         suppressDuringSelectedEvents: true,
         promptAfterSelectedEvents: true,
         selectedEventPreferences: [],
         selectedCalendarIdentifiers: [],
-        restDayIdentifiers: []
+        restDayIdentifiers: [],
+        hasInitializedCalendarSelections: false
     )
 
     enum CodingKeys: String, CodingKey {
@@ -31,11 +37,14 @@ struct AppSettings: Codable, Hashable {
         case notificationsEnabled
         case quietWindows
         case calendarSyncEnabled
+        case deviceCalendarsEnabled
+        case googleCalendarsEnabled
         case suppressDuringSelectedEvents
         case promptAfterSelectedEvents
         case selectedEventPreferences
         case selectedCalendarIdentifiers
         case restDayIdentifiers
+        case hasInitializedCalendarSelections
     }
 
     init(
@@ -43,21 +52,27 @@ struct AppSettings: Codable, Hashable {
         notificationsEnabled: Bool,
         quietWindows: [QuietWindow],
         calendarSyncEnabled: Bool,
+        deviceCalendarsEnabled: Bool,
+        googleCalendarsEnabled: Bool,
         suppressDuringSelectedEvents: Bool,
         promptAfterSelectedEvents: Bool,
         selectedEventPreferences: [CalendarEventPreference],
         selectedCalendarIdentifiers: [String],
-        restDayIdentifiers: [String]
+        restDayIdentifiers: [String],
+        hasInitializedCalendarSelections: Bool
     ) {
         self.promptIntervalMinutes = promptIntervalMinutes
         self.notificationsEnabled = notificationsEnabled
         self.quietWindows = quietWindows
         self.calendarSyncEnabled = calendarSyncEnabled
+        self.deviceCalendarsEnabled = deviceCalendarsEnabled
+        self.googleCalendarsEnabled = googleCalendarsEnabled
         self.suppressDuringSelectedEvents = suppressDuringSelectedEvents
         self.promptAfterSelectedEvents = promptAfterSelectedEvents
         self.selectedEventPreferences = selectedEventPreferences
         self.selectedCalendarIdentifiers = selectedCalendarIdentifiers
         self.restDayIdentifiers = restDayIdentifiers
+        self.hasInitializedCalendarSelections = hasInitializedCalendarSelections
     }
 
     init(from decoder: Decoder) throws {
@@ -66,11 +81,15 @@ struct AppSettings: Codable, Hashable {
         notificationsEnabled = try container.decode(Bool.self, forKey: .notificationsEnabled)
         quietWindows = try container.decode([QuietWindow].self, forKey: .quietWindows)
         calendarSyncEnabled = try container.decode(Bool.self, forKey: .calendarSyncEnabled)
+        deviceCalendarsEnabled = try container.decodeIfPresent(Bool.self, forKey: .deviceCalendarsEnabled) ?? true
+        googleCalendarsEnabled = try container.decodeIfPresent(Bool.self, forKey: .googleCalendarsEnabled) ?? true
         suppressDuringSelectedEvents = try container.decode(Bool.self, forKey: .suppressDuringSelectedEvents)
         promptAfterSelectedEvents = try container.decode(Bool.self, forKey: .promptAfterSelectedEvents)
         selectedEventPreferences = try container.decode([CalendarEventPreference].self, forKey: .selectedEventPreferences)
         selectedCalendarIdentifiers = try container.decodeIfPresent([String].self, forKey: .selectedCalendarIdentifiers) ?? []
         restDayIdentifiers = try container.decodeIfPresent([String].self, forKey: .restDayIdentifiers) ?? []
+        hasInitializedCalendarSelections = try container.decodeIfPresent(Bool.self, forKey: .hasInitializedCalendarSelections)
+            ?? !selectedCalendarIdentifiers.isEmpty
     }
 }
 
