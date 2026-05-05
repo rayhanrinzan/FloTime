@@ -4,6 +4,7 @@ struct TodayDashboardView: View {
     @ObservedObject var store: ActivityStore
     let onAddLog: () -> Void
     @State private var logPendingDeletion: ActivityLog?
+    @State private var isLatestLogsExpanded = false
 
     var body: some View {
         NavigationStack {
@@ -92,16 +93,32 @@ struct TodayDashboardView: View {
 
     private var latestLogsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Latest Check-Ins")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(FloTimeTheme.text)
+            if todayLogs.isEmpty {
+                Text("Latest Check-Ins")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(FloTimeTheme.text)
 
-            if store.logs(on: .now).isEmpty {
-                emptyState("No entries yet for today.")
+                emptyState("No recent check-ins.")
             } else {
-                ForEach(store.logs(on: .now)) { log in
-                    logRow(log)
+                DisclosureGroup(isExpanded: $isLatestLogsExpanded) {
+                    VStack(spacing: 0) {
+                        ForEach(todayLogs) { log in
+                            logRow(log)
+                        }
+                    }
+                    .padding(.top, 8)
+                } label: {
+                    HStack {
+                        Text("Latest Check-Ins")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(FloTimeTheme.text)
+                        Spacer()
+                        Text("\(todayLogs.count)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(FloTimeTheme.mutedText)
+                    }
                 }
+                .tint(FloTimeTheme.primary)
             }
         }
         .floTimeCard()
@@ -198,6 +215,10 @@ struct TodayDashboardView: View {
     private var averageText: String {
         let average = store.averageRating(on: .now)
         return average == 0 ? "--" : String(format: "%.1f / 10", average)
+    }
+
+    private var todayLogs: [ActivityLog] {
+        store.logs(on: .now)
     }
 
     private var isRestDayToday: Bool {

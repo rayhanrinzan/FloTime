@@ -6,6 +6,8 @@ struct SettingsView: View {
     @State private var googleAlertMessage = ""
     @State private var isGoogleCalendarsExpanded = false
     @State private var isDeviceCalendarsExpanded = false
+    @State private var isUpcomingEventsExpanded = false
+    @State private var expandedEventCalendarIDs: Set<String> = []
 
     var body: some View {
         NavigationStack {
@@ -203,31 +205,70 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(FloTimeTheme.mutedText)
                 } else {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Choose Event Behavior")
-                            .font(.headline)
-                            .foregroundStyle(FloTimeTheme.text)
-
-                        ForEach(store.upcomingEvents.prefix(6)) { event in
-                            EventPreferenceRow(
-                                event: event,
-                                preference: store.preference(for: event),
-                                onChange: { muteDuringEvent, promptToLogAfter in
-                                    Task {
-                                        await store.updateEventPreference(
-                                            for: event,
-                                            muteDuringEvent: muteDuringEvent,
-                                            promptToLogAfter: promptToLogAfter
-                                        )
-                                    }
-                                }
-                            )
-                        }
-                    }
+                    upcomingEventsSection
                 }
             }
         }
         .floTimeCard()
+    }
+
+    private var upcomingEventsSection: some View {
+        DisclosureGroup(isExpanded: $isUpcomingEventsExpanded) {
+            VStack(spacing: 12) {
+                ForEach(groupedUpcomingEvents) { group in
+                    DisclosureGroup(
+                        isExpanded: bindingForExpandedEventCalendar(group.id)
+                    ) {
+                        VStack(spacing: 10) {
+                            ForEach(group.events) { event in
+                                EventPreferenceRow(
+                                    event: event,
+                                    preference: store.preference(for: event),
+                                    onChange: { muteDuringEvent, promptToLogAfter in
+                                        Task {
+                                            await store.updateEventPreference(
+                                                for: event,
+                                                muteDuringEvent: muteDuringEvent,
+                                                promptToLogAfter: promptToLogAfter
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.top, 8)
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(group.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(FloTimeTheme.text)
+                                Text(group.subtitle)
+                                    .font(.caption)
+                                    .foregroundStyle(FloTimeTheme.mutedText)
+                            }
+                            Spacer()
+                            Text("\(group.events.count)")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(FloTimeTheme.mutedText)
+                        }
+                    }
+                    .tint(FloTimeTheme.primary)
+                }
+            }
+            .padding(.top, 8)
+        } label: {
+            HStack {
+                Text("Choose Event Behavior")
+                    .font(.headline)
+                    .foregroundStyle(FloTimeTheme.text)
+                Spacer()
+                Text("\(store.upcomingEvents.count)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(FloTimeTheme.mutedText)
+            }
+        }
+        .tint(FloTimeTheme.primary)
     }
 
     private func calendarProviderSection(
@@ -413,9 +454,42 @@ struct SettingsView: View {
         store.calendarPermissionState == .authorized || store.googleConnectionState.isConnected || !store.availableCalendars.isEmpty
     }
 
+    private var groupedUpcomingEvents: [EventCalendarGroup] {
+        let grouped = Dictionary(grouping: store.upcomingEvents, by: \.calendarIdentifier)
+        return grouped.values
+            .compactMap { events in
+                guard let first = events.first else { return nil }
+                return EventCalendarGroup(
+                    id: first.calendarIdentifier,
+                    title: first.calendarTitle,
+                    subtitle: "\(first.provider.displayName) • \(first.sourceTitle)",
+                    events: events.sorted { $0.startDate < $1.startDate }
+                )
+            }
+            .sorted {
+                if $0.title == $1.title {
+                    return $0.subtitle < $1.subtitle
+                }
+                return $0.title < $1.title
+            }
+    }
+
     private func presentGoogleAlert(_ message: String) {
         googleAlertMessage = message
         isShowingGoogleAlert = true
+    }
+
+    private func bindingForExpandedEventCalendar(_ calendarID: String) -> Binding<Bool> {
+        Binding(
+            get: { expandedEventCalendarIDs.contains(calendarID) },
+            set: { isExpanded in
+                if isExpanded {
+                    expandedEventCalendarIDs.insert(calendarID)
+                } else {
+                    expandedEventCalendarIDs.remove(calendarID)
+                }
+            }
+        )
     }
 
     private func intervalOptionLabel(for minutes: Int) -> String {
@@ -428,6 +502,13 @@ struct SettingsView: View {
             return "\(minutes)m"
         }
     }
+}
+
+private struct EventCalendarGroup: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let events: [CalendarEventSnapshot]
 }
 
 struct QuietWindowEditor: View {
