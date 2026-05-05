@@ -37,14 +37,27 @@ struct DailyProductivityChartView: View {
     }
 
     private var axisStrideHours: Int {
-        horizontalSizeClass == .compact ? 3 : 2
+        let visibleHours = chartDomain.upperBound.timeIntervalSince(chartDomain.lowerBound) / 3600
+
+        switch visibleHours {
+        case ...4:
+            return 1
+        case ...10:
+            return 2
+        default:
+            return horizontalSizeClass == .compact ? 3 : 2
+        }
     }
 
     private var chartDomain: ClosedRange<Date> {
         let calendar = Calendar.current
         let referenceDate = points.first?.timestamp ?? .now
-        let start = calendar.startOfDay(for: referenceDate)
-        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
-        return start...end
+        let lowerBound = points.first?.timestamp ?? referenceDate
+        let relevantEnd = max(points.last?.timestamp ?? referenceDate, calendar.isDateInToday(referenceDate) ? .now : referenceDate)
+        let upperCandidate = calendar.date(byAdding: .hour, value: 1, to: relevantEnd) ?? relevantEnd
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: referenceDate)) ?? upperCandidate
+        let upperBound = min(upperCandidate, endOfDay)
+
+        return lowerBound...upperBound
     }
 }
