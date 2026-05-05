@@ -80,7 +80,7 @@ struct CalendarOverviewView: View {
                     .foregroundStyle(FloTimeTheme.mutedText)
                     .padding(.vertical, 18)
             } else {
-                DailyProductivityChartView(points: store.hourlyTrend(on: store.selectedDate))
+                DailyProductivityChartView(points: store.productivityTrend(on: store.selectedDate))
 
                 ForEach(dayLogs) { log in
                     logRow(log)

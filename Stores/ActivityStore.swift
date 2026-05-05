@@ -152,19 +152,16 @@ final class ActivityStore: ObservableObject {
         return Double(items.map(\.rating).reduce(0, +)) / Double(items.count)
     }
 
-    func hourlyTrend(on date: Date) -> [HourlyProductivityPoint] {
-        let dayLogs = logs(on: date)
-        let calendar = Calendar.current
-
-        return (0..<24).compactMap { hour in
-            let matching = dayLogs.filter {
-                calendar.component(.hour, from: $0.timestamp) == hour
+    func productivityTrend(on date: Date) -> [ProductivityChartPoint] {
+        logs(on: date)
+            .sorted { $0.timestamp < $1.timestamp }
+            .map { log in
+                ProductivityChartPoint(
+                    timestamp: log.timestamp,
+                    rating: Double(log.rating),
+                    note: log.note
+                )
             }
-
-            guard !matching.isEmpty else { return nil }
-            let average = Double(matching.map(\.rating).reduce(0, +)) / Double(matching.count)
-            return HourlyProductivityPoint(hour: hour, averageRating: average)
-        }
     }
 
     func updateInterval(to minutes: Int) async {
@@ -561,9 +558,10 @@ extension ActivityStore {
     }()
 }
 
-struct HourlyProductivityPoint: Identifiable {
-    let hour: Int
-    let averageRating: Double
+struct ProductivityChartPoint: Identifiable {
+    let timestamp: Date
+    let rating: Double
+    let note: String
 
-    var id: Int { hour }
+    var id: Date { timestamp }
 }

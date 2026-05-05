@@ -84,10 +84,10 @@ struct TodayDashboardView: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(FloTimeTheme.text)
 
-            if store.hourlyTrend(on: .now).isEmpty {
+            if store.productivityTrend(on: .now).isEmpty {
                 emptyState("Once you add a few check-ins, your productivity trend will appear here.")
             } else {
-                DailyProductivityChartView(points: store.hourlyTrend(on: .now))
+                DailyProductivityChartView(points: store.productivityTrend(on: .now))
             }
         }
         .floTimeCard()
