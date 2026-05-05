@@ -10,7 +10,7 @@ struct DailyProductivityChartView: View {
                 x: .value("Time", point.timestamp),
                 y: .value("Rating", point.rating)
             )
-            .interpolationMethod(.linear)
+            .interpolationMethod(.monotone)
             .foregroundStyle(FloTimeTheme.primary)
             .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
 
@@ -19,11 +19,6 @@ struct DailyProductivityChartView: View {
                 y: .value("Rating", point.rating)
             )
             .foregroundStyle(FloTimeTheme.primary)
-            .annotation(position: .top, spacing: 6) {
-                Text("\(Int(point.rating))")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(FloTimeTheme.text)
-            }
         }
         .chartYScale(domain: 0...10)
         .chartXAxis {
