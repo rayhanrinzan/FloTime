@@ -21,6 +21,8 @@ struct CalendarOverviewView: View {
 
                         selectedDayCard
                     }
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                 }

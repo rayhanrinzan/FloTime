@@ -39,9 +39,12 @@ final class NotificationScheduler {
 
         let preferenceMap = Dictionary(uniqueKeysWithValues: settings.selectedEventPreferences.map { ($0.eventIdentifier, $0) })
         for event in events {
-            guard let preference = preferenceMap[event.id], preference.promptToLogAfter else { continue }
-            guard event.endDate > .now else { continue }
-            guard !isRestDay(date: event.endDate, restDayIdentifiers: settings.restDayIdentifiers) else { continue }
+            let preference = preferenceMap[event.id] ?? defaultEventPreference(for: event)
+            guard preference.promptToLogAfter else { continue }
+
+            let followUpDate = event.endDate.addingTimeInterval(60)
+            guard followUpDate > .now else { continue }
+            guard !isRestDay(date: followUpDate, restDayIdentifiers: settings.restDayIdentifiers) else { continue }
 
             let content = UNMutableNotificationContent()
             content.title = "Log This Event?"
@@ -55,7 +58,7 @@ final class NotificationScheduler {
                 "eventEndTimestamp": event.endDate.timeIntervalSince1970
             ]
 
-            let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: event.endDate)
+            let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: followUpDate)
             let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
             let request = UNNotificationRequest(identifier: "event-\(event.id)", content: content, trigger: trigger)
             try? await add(request)
@@ -71,11 +74,7 @@ final class NotificationScheduler {
         var results: [Date] = []
         var cursor = startDate
         let interval = TimeInterval(settings.promptIntervalMinutes * 60)
-        let mutedEventIDs = Set(
-            settings.selectedEventPreferences
-                .filter(\.muteDuringEvent)
-                .map(\.eventIdentifier)
-        )
+        let preferenceMap = Dictionary(uniqueKeysWithValues: settings.selectedEventPreferences.map { ($0.eventIdentifier, $0) })
 
         while results.count < maximumCount {
             cursor = cursor.addingTimeInterval(interval)
@@ -88,7 +87,8 @@ final class NotificationScheduler {
 
             if settings.calendarSyncEnabled && settings.suppressDuringSelectedEvents {
                 let overlapsMutedEvent = events.contains { event in
-                    mutedEventIDs.contains(event.id) && cursor >= event.startDate && cursor <= event.endDate
+                    let preference = preferenceMap[event.id] ?? defaultEventPreference(for: event)
+                    return preference.muteDuringEvent && cursor >= event.startDate && cursor <= event.endDate
                 }
 
                 if overlapsMutedEvent {
@@ -133,6 +133,17 @@ final class NotificationScheduler {
         }
 
         return String(format: "%.1f hours", hours)
+    }
+
+    private func defaultEventPreference(for event: CalendarEventSnapshot) -> CalendarEventPreference {
+        CalendarEventPreference(
+            eventIdentifier: event.id,
+            title: event.title,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            muteDuringEvent: true,
+            promptToLogAfter: true
+        )
     }
 
     private func add(_ request: UNNotificationRequest) async throws {

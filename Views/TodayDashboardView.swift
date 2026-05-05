@@ -23,6 +23,8 @@ struct TodayDashboardView: View {
                         latestLogsCard
                         restDayCard
                     }
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                 }

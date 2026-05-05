@@ -21,6 +21,8 @@ struct SettingsView: View {
                         quietHoursCard
                         calendarCard
                     }
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                 }
@@ -124,40 +126,7 @@ struct SettingsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
 
-                HStack(spacing: 10) {
-                    Button {
-                        Task {
-                            await store.connectGoogleCalendar()
-                            if case .failed(let message) = store.googleConnectionState {
-                                presentGoogleAlert(message)
-                            }
-                        }
-                    } label: {
-                        Label(connectButtonLabel, systemImage: "globe")
-                            .font(.headline)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(FloTimeTheme.primary)
-                    .disabled(isConnectingGoogle)
-
-                    if store.googleConnectionState.isConnected {
-                        Button(role: .destructive) {
-                            Task {
-                                await store.disconnectGoogleCalendar()
-                            }
-                        } label: {
-                            Label("Disconnect", systemImage: "xmark.circle")
-                                .font(.subheadline.weight(.semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.85)
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                }
+                googleButtons
             }
             .padding(14)
             .background(FloTimeTheme.accent.opacity(0.20))
@@ -269,6 +238,59 @@ struct SettingsView: View {
             }
         }
         .tint(FloTimeTheme.primary)
+    }
+
+    private var googleButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                connectGoogleButton
+                if store.googleConnectionState.isConnected {
+                    disconnectGoogleButton
+                }
+            }
+
+            VStack(spacing: 10) {
+                connectGoogleButton
+                if store.googleConnectionState.isConnected {
+                    disconnectGoogleButton
+                }
+            }
+        }
+    }
+
+    private var connectGoogleButton: some View {
+        Button {
+            Task {
+                await store.connectGoogleCalendar()
+                if case .failed(let message) = store.googleConnectionState {
+                    presentGoogleAlert(message)
+                }
+            }
+        } label: {
+            Label(connectButtonLabel, systemImage: "globe")
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(FloTimeTheme.primary)
+        .disabled(isConnectingGoogle)
+    }
+
+    private var disconnectGoogleButton: some View {
+        Button(role: .destructive) {
+            Task {
+                await store.disconnectGoogleCalendar()
+            }
+        } label: {
+            Label("Disconnect", systemImage: "xmark.circle")
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
     }
 
     private func calendarProviderSection(
@@ -525,19 +547,17 @@ struct QuietWindowEditor: View {
             Toggle(draft.name, isOn: $draft.isEnabled)
                 .tint(FloTimeTheme.primary)
 
-            HStack {
-                DatePicker(
-                    "Start",
-                    selection: startBinding,
-                    displayedComponents: .hourAndMinute
-                )
-                DatePicker(
-                    "End",
-                    selection: endBinding,
-                    displayedComponents: .hourAndMinute
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    timeField(title: "Start", selection: startBinding)
+                    timeField(title: "End", selection: endBinding)
+                }
+
+                VStack(spacing: 12) {
+                    timeField(title: "Start", selection: startBinding)
+                    timeField(title: "End", selection: endBinding)
+                }
             }
-            .datePickerStyle(.compact)
         }
         .padding(14)
         .background(FloTimeTheme.accent.opacity(0.26))
@@ -545,6 +565,24 @@ struct QuietWindowEditor: View {
         .onChange(of: draft) { _, updated in
             onChange(updated)
         }
+    }
+
+    private func timeField(title: String, selection: Binding<Date>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(FloTimeTheme.mutedText)
+
+            DatePicker(
+                title,
+                selection: selection,
+                displayedComponents: .hourAndMinute
+            )
+            .labelsHidden()
+            .datePickerStyle(.compact)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var startBinding: Binding<Date> {
